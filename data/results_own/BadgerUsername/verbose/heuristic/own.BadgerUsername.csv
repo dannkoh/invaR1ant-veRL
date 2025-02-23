@@ -1,0 +1,31 @@
+inputSize,wcDepth,wcInstrExec,analysisTime,mem,paths,resolvedChoicesNum,resolvedPerfectChoicesNum,resolvedHistoryChoicesNum,resolvedInvariantChoicesNum,unresolvedChoicesNum,newChoicesNum,wcConstraint
+1,0,6,0,123,1,0,0,0,0,0,0,CONSTRAINT N/A
+2,0,6,0,155,1,0,0,0,0,0,0,CONSTRAINT N/A
+3,6,95,0,155,1,6,0,6,0,0,0,in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+4,8,120,0,155,1,8,0,8,0,0,0,in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+5,10,145,0,155,1,10,0,10,0,0,0,in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+6,12,170,0,155,1,12,0,12,0,0,0,in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+7,14,195,0,225,1,14,0,14,0,0,0,in6 == CONST_45 && in6 != CONST_95 && in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+8,16,220,0,225,1,16,0,16,0,0,0,in7 == CONST_45 && in7 != CONST_95 && in6 == CONST_45 && in6 != CONST_95 && in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+9,18,245,0,225,1,18,0,18,0,0,0,in8 == CONST_45 && in8 != CONST_95 && in7 == CONST_45 && in7 != CONST_95 && in6 == CONST_45 && in6 != CONST_95 && in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+10,20,270,0,225,1,20,0,20,0,0,0,in9 == CONST_45 && in9 != CONST_95 && in8 == CONST_45 && in8 != CONST_95 && in7 == CONST_45 && in7 != CONST_95 && in6 == CONST_45 && in6 != CONST_95 && in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+11,22,295,0,225,1,22,0,22,0,0,0,in10 == CONST_45 && in10 != CONST_95 && in9 == CONST_45 && in9 != CONST_95 && in8 == CONST_45 && in8 != CONST_95 && in7 == CONST_45 && in7 != CONST_95 && in6 == CONST_45 && in6 != CONST_95 && in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+12,24,320,0,225,1,24,0,24,0,0,0,in11 == CONST_45 && in11 != CONST_95 && in10 == CONST_45 && in10 != CONST_95 && in9 == CONST_45 && in9 != CONST_95 && in8 == CONST_45 && in8 != CONST_95 && in7 == CONST_45 && in7 != CONST_95 && in6 == CONST_45 && in6 != CONST_95 && in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+13,26,345,0,225,1,26,0,26,0,0,0,in12 == CONST_45 && in12 != CONST_95 && in11 == CONST_45 && in11 != CONST_95 && in10 == CONST_45 && in10 != CONST_95 && in9 == CONST_45 && in9 != CONST_95 && in8 == CONST_45 && in8 != CONST_95 && in7 == CONST_45 && in7 != CONST_95 && in6 == CONST_45 && in6 != CONST_95 && in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+14,28,370,0,225,1,28,0,28,0,0,0,in13 == CONST_45 && in13 != CONST_95 && in12 == CONST_45 && in12 != CONST_95 && in11 == CONST_45 && in11 != CONST_95 && in10 == CONST_45 && in10 != CONST_95 && in9 == CONST_45 && in9 != CONST_95 && in8 == CONST_45 && in8 != CONST_95 && in7 == CONST_45 && in7 != CONST_95 && in6 == CONST_45 && in6 != CONST_95 && in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+15,30,395,0,225,1,30,0,30,0,0,0,in14 == CONST_45 && in14 != CONST_95 && in13 == CONST_45 && in13 != CONST_95 && in12 == CONST_45 && in12 != CONST_95 && in11 == CONST_45 && in11 != CONST_95 && in10 == CONST_45 && in10 != CONST_95 && in9 == CONST_45 && in9 != CONST_95 && in8 == CONST_45 && in8 != CONST_95 && in7 == CONST_45 && in7 != CONST_95 && in6 == CONST_45 && in6 != CONST_95 && in5 == CONST_45 && in5 != CONST_95 && in4 == CONST_45 && in4 != CONST_95 && in3 == CONST_45 && in3 != CONST_95 && in2 == CONST_45 && in2 != CONST_95 && in1 == CONST_45 && in1 != CONST_95 && in0 == CONST_45 && in0 != CONST_95
+16,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+17,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+18,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+19,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+20,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+21,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+22,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+23,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+24,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+25,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+26,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+27,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+28,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+29,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
+30,0,10,0,356,1,0,0,0,0,0,0,CONSTRAINT N/A
