@@ -15,7 +15,22 @@
 
 
 def _default_compute_score(data_source, solution_str, ground_truth, extra_info=None):
-    if data_source == 'openai/gsm8k':
+    if data_source == "dannkoh/ConStruct-Base":
+        from . import custom
+        res = custom.compute_score(
+            solution_str=solution_str,
+            ground_truth=ground_truth,
+            extra_info=extra_info
+            )
+    elif data_source == "dannkoh/ConStruct-Instruct":
+        from . import custom
+        res = custom.compute_score(
+            solution_str=solution_str,
+            ground_truth=ground_truth,
+            extra_info=extra_info,
+            is_instruct=True
+            )
+    elif data_source == 'openai/gsm8k':
         from . import gsm8k
         res = gsm8k.compute_score(solution_str, ground_truth)
     elif data_source in ['lighteval/MATH', 'DigitalLearningGmbH/MATH-lighteval']:
