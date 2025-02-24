@@ -69,7 +69,8 @@ class RLHFDataset(Dataset):
                  cache_dir='~/.cache/verl/rlhf',
                  chat_template_func=None,
                  return_raw_chat=False,
-                 truncation='error'):
+                 truncation='error',
+                 instruct=False):
         if not isinstance(parquet_files, (List, ListConfig)):
             parquet_files = [parquet_files]
 
@@ -85,6 +86,7 @@ class RLHFDataset(Dataset):
         self.return_raw_chat = return_raw_chat
         self.chat_template_func = chat_template_func
         self.truncation = truncation
+        self.instruct = instruct
 
         # whether to store the dataset in state_dict()
         # default not store
@@ -139,7 +141,7 @@ class RLHFDataset(Dataset):
 
 
         # Setting add generation prompt and continue final message to true ensures the chat template is applied without any modifications
-        if self.config.instruct:
+        if self.instruct:
             prompt_with_chat_template = self.tokenizer.apply_chat_template(
                 conversation=chat,
                 tokenize=False,
