@@ -24,6 +24,62 @@ For a full list of verl’s features and future updates, please refer to the [or
 
 ## Getting Started
 
+#### You should install these first before running the `requirements.txt` file because these packages are not included in the `requirements.txt` file
+
+```bash
+pip install torch torchvision torchaudio
+```
+[Torch install guide](https://pytorch.org/get-started/locally/)
+
+idk what torch version you can use, I was on CUDA 12.4
+
+---
+```bash
+pip install flash-attn --no-build-isolation
+```
+[Flash-Attn install guide](https://github.com/Dao-AILab/flash-attention)
+
+I couldnt install flash-attn with build isolation, so I had to use the `--no-build-isolation` flag
+
+---
+```bash
+##########################DEPENDENCIES############################
+# install Python dependency
+pip install ninja pybind11 torch
+##################################################################
+
+# 1. clone from GitHub
+git clone --recursive https://github.com/mlc-ai/xgrammar.git && cd xgrammar
+# 2. build XGrammar core and Python bindings
+mkdir build && cd build
+cmake .. -G Ninja
+ninja
+# 3. install the Python package
+cd ../python
+pip install .
+```
+[XGrammar install guide](https://xgrammar.mlc.ai/docs/start/install)
+
+Xgrammar failed to install so i had to build it from source
+
+---
+```bash
+pip install -U xformers
+```
+[XFormers install guide](https://github.com/facebookresearch/xformers)
+
+I couldnt install it through the requirements.txt file so I had to install it manually
+
+---
+```bash
+pip install vllm==0.7.3
+```
+[VLLM install guide](https://docs.vllm.ai/en/stable/getting_started/installation/gpu/index.html)
+
+My specific hpc environmnet couldnt let me install vllm.
+
+ > `xformers-0.0.28.post3.tar.gz` failed to install fo me when I was installing vllm.
+
 ### Project Structure
 
 - **/docs/**: Custom documentation for project-specific modifications.
