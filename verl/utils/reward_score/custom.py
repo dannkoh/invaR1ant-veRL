@@ -2,7 +2,7 @@ import subprocess
 import re
 
 
-def compute_score(solution_str: str, ground_truth: str, extra_info: dict[str,str], is_instruct: bool) -> float:
+def compute_score(solution_str: str, ground_truth: str, extra_info: dict[str,str], is_instruct: bool = False) -> float:
     """
     Compute the score for a given solution and ground truth by checking
     the logical equivalence of their SMT constraints.
