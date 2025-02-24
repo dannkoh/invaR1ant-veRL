@@ -4,8 +4,8 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 
 python3 -u -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
-    data.train_files=$HOME/ConStruct/training/train.parquet \
-    data.val_files=$HOME/ConStruct/training/test.parquet \
+    data.train_files=$HOME/ConStruct-veRL/data/train.parquet \
+    data.val_files=$HOME/ConStruct-veRL/data/test.parquet \
     data.train_batch_size=512 \
     data.val_batch_size=614 \
     data.max_prompt_length=1800 \
