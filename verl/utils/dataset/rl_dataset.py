@@ -150,7 +150,8 @@ class RLHFDataset(Dataset):
                 )
         else:
             # Do not add chat template (tokens like <|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant) for non-instruct models
-            prompt_with_chat_template = chat
+            prompt_with_chat_template = str(chat)
+            print("prompt without any modifications", prompt_with_chat_template)
 
         input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
                                                                          tokenizer=self.tokenizer,
