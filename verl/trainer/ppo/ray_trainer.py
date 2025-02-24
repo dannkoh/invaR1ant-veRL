@@ -24,7 +24,7 @@ from enum import Enum
 from pprint import pprint
 from typing import Type, Dict
 from copy import deepcopy
-import tqdm
+from tqdm import tqdm
 
 import numpy as np
 from codetiming import Timer
