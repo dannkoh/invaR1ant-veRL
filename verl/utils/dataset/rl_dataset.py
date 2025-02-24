@@ -139,12 +139,16 @@ class RLHFDataset(Dataset):
 
 
         # Setting add generation prompt and continue final message to true ensures the chat template is applied without any modifications
-        prompt_with_chat_template = self.tokenizer.apply_chat_template(
-            conversation=chat,
-            tokenize=False,
-            add_generation_prompt=False, # without generation (<|im_start|>user Can I ask a question?<|im_end|>) -> with generation(<|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant)
-            continue_final_message=True # continue final message (<|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant Let me think first) -> without (<|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant Let me think first <|im_end|><|im_start|>assistant 
-            )
+        if self.config.instruct:
+            prompt_with_chat_template = self.tokenizer.apply_chat_template(
+                conversation=chat,
+                tokenize=False,
+                add_generation_prompt=False, # without generation (<|im_start|>user Can I ask a question?<|im_end|>) -> with generation(<|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant)
+                continue_final_message=True # continue final message (<|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant Let me think first) -> without (<|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant Let me think first <|im_end|><|im_start|>assistant 
+                )
+        else:
+            # Do not add chat template (tokens like <|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant) for non-instruct models
+            prompt_with_chat_template = chat
 
         input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
                                                                          tokenizer=self.tokenizer,
