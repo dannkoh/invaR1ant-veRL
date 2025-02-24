@@ -8,8 +8,8 @@ python3 -u -m verl.trainer.main_ppo \
     data.val_files=$HOME/ConStruct/training/test.parquet \
     data.train_batch_size=512 \
     data.val_batch_size=614 \
-    data.max_prompt_length=1024 \
-    data.max_response_length=2048 \
+    data.max_prompt_length=1800 \
+    data.max_response_length=4096 \
     data.return_raw_input_ids=True \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-3B \
     actor_rollout_ref.actor.optim.lr=1e-6 \
