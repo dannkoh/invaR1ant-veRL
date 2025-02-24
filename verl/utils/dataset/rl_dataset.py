@@ -150,7 +150,13 @@ class RLHFDataset(Dataset):
                 )
         else:
             # Do not add chat template (tokens like <|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant) for non-instruct models
-            prompt_with_chat_template = str(chat)
+            if isinstance(chat, list):
+                # Join the content of each message
+                prompt_with_chat_template = " ".join(msg.get("content", "") for msg in chat)
+            elif isinstance(chat, dict):
+                prompt_with_chat_template = chat.get("content", "")
+            else:
+                prompt_with_chat_template = str(chat)
             print("prompt without any modifications", prompt_with_chat_template)
 
         input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
