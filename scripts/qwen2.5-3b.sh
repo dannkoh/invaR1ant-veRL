@@ -10,7 +10,6 @@ python3 -u -m verl.trainer.main_ppo \
     data.val_batch_size=614 \
     data.max_prompt_length=1800 \
     data.max_response_length=4096 \
-    data.return_raw_input_ids=True \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-3B \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
@@ -32,6 +31,6 @@ python3 -u -m verl.trainer.main_ppo \
     trainer.project_name=ConStruct \
     trainer.experiment_name=qwen2.5-3b \
     trainer.n_gpus_per_node=2 \
-    trainer.save_freq=-1 \
-    trainer.test_freq=10 \
+    trainer.save_freq=100 \
+    trainer.test_freq=100 \
     trainer.total_epochs=15 $@
