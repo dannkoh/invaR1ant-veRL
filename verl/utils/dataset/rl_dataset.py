@@ -160,8 +160,6 @@ class RLHFDataset(Dataset):
             else:
                 prompt_with_chat_template = str(chat)
 
-            print("prompt without any modifications", prompt_with_chat_template)
-
         input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
                                                                          tokenizer=self.tokenizer,
                                                                          max_length=self.max_prompt_length,
