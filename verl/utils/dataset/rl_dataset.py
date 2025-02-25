@@ -151,14 +151,7 @@ class RLHFDataset(Dataset):
                 )
         else:
             # Do not add chat template (tokens like <|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant) for non-instruct models
-            print(type(chat), chat)
-            if isinstance(chat, str):
-                try:
-                    chat = json.loads(chat)
-                except json.JSONDecodeError:
-                    # If it fails, leave chat as the original string
-                    pass
-
+            chat = chat.tolist()
             # Build the final prompt from the chat structure
             if isinstance(chat, list):
                 prompt_with_chat_template = " ".join(msg.get("content", "") for msg in chat)
