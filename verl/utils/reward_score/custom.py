@@ -1,6 +1,5 @@
 import subprocess
 import re
-from pprint import pprint
 
 
 def compute_score(solution_str: str, ground_truth: str, extra_info: dict[str,str], is_instruct: bool = False) -> float:
@@ -161,6 +160,6 @@ def extract_solution(response: str, is_instruct: bool) -> str:
     solution = match.group(2).strip()
 
     # Debug output showing the first 50 characters of each block.
-    pprint(f"\n\n{'#'*30}DEBUG{'#'*30}\nChain-of-thought (first 50 chars): {chain_of_thought[:50]}\nSolution (first 50 chars): {solution[:50]}\n{'#'*60}\n\n")
+    print(f"\n\n{'#'*30}DEBUG{'#'*30}\nChain-of-thought (first 50 chars): {chain_of_thought[:50]}\nSolution (first 50 chars): {solution[:50]}\n{'#'*60}\n\n", flush=True)
 
     return solution
