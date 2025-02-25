@@ -1,5 +1,6 @@
 import subprocess
 import re
+from pprint import pprint
 
 
 def compute_score(solution_str: str, ground_truth: str, extra_info: dict[str,str], is_instruct: bool = False) -> float:
@@ -122,28 +123,44 @@ def parse_raw_constraints(constraint):
     # Combine into a single conjunctive expression
     return f"(and {' '.join(assertions)})"
 
-
-def extract_solution(response: str, is_instruct) -> str:
+def extract_solution(response: str, is_instruct: bool) -> str:
     """
     Extract the solution string from the response.
 
+    This function expects that the response contains:
+      - Optionally some manually formatted text before the <think> token.
+      - A <think> ... </think> block.
+      - An <answer> ... </answer> block.
+    The entire response must end immediately after </answer>.
+
     Args:
-      response (str): The response from the model.
+      response (str): The full response text.
+      is_instruct (bool): If True, expects additional <im_start> tokens.
 
     Returns:
-      str: The solution string.
+      str: The solution string from the <answer> block, or None if formatting fails.
     """
-    # Extract the solution string from the response.
-
-    # Check if </think> is next to <answer> tag followed by </answer> tag
     if not is_instruct:
-        expression = r"Assistant:\s(.*?)<think>(.*?)</think>\s*<answer>(.*?)</answer>\s*"
+        pattern = (
+            r".*<think>\s*(.*?)\s*</think>\s*"   # Capture chain-of-thought block.
+            r"<answer>\s*(.*?)\s*</answer>\s*$"    # Capture answer block and require end-of-string.
+        )
     else:
-        expression = r"<im_start>.*?Assistant:\s(.*?)<think>(.*?)</think>\s*<answer>(.*?)</answer>\s*"
+        pattern = (
+            r".*<im_start>.*?Assistant:\s*.*?"      # Allow any text (including the prompt) before the tokens.
+            r"<think>\s*(.*?)\s*</think>\s*"         # Capture chain-of-thought.
+            r"<answer>\s*(.*?)\s*</answer>\s*$"       # Capture answer block, with no extra text after.
+        )
 
-    match = re.search(expression, response, re.DOTALL)
+    # Use fullmatch to ensure the response ends exactly after the answer block.
+    match = re.fullmatch(pattern, response, re.DOTALL)
     if match is None:
         return None
-    print(f"{'#' * 60}\n{response}\nThink:{match.group(2).strip()[:50]}\nSol:{match.group(3).strip()[:50]}{'#' * 60}", flush=True)
-    solution = match.group(3).strip()
+
+    chain_of_thought = match.group(1).strip()
+    solution = match.group(2).strip()
+
+    # Debug output showing the first 50 characters of each block.
+    pprint(f"\n\n{'#'*30}DEBUG{'#'*30}\nChain-of-thought (first 50 chars): {chain_of_thought[:50]}\nSolution (first 50 chars): {solution[:50]}\n{'#'*60}\n\n")
+
     return solution
