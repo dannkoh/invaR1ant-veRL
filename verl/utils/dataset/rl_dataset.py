@@ -151,6 +151,7 @@ class RLHFDataset(Dataset):
                 )
         else:
             # Do not add chat template (tokens like <|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant) for non-instruct models
+            print(type(chat), chat)
             if isinstance(chat, str):
                 try:
                     chat = json.loads(chat)
