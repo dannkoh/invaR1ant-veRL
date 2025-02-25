@@ -182,7 +182,7 @@ def make_prefix(model, examples, N_question, instruct) -> str:  # noqa: N803
     All per-variable constraints must be combined using a top-level (assert (and ...)) clause.
     The output must be in exact, canonical SMT-LIB format without extra commentary in the constraint string.
     Show your work in <think> </think> tags. And return the final SMT-LIB constraint string in <answer> </answer> tags.
-    For example: <think>There are no constraints</think><answer>None</answer>.
+    For example: <answer>(assert (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (not ( = in0 64)) (not ( = in0 35))) (not ( = in0 36)))  ( =  in0 37)) (not ( = in1 64))) (not ( = in1 35))) (not ( = in1 36)))  ( =  in1 37)) (not ( = in2 64))) (not ( = in2 35))) (not ( = in2 36)))  ( =  in2 37)) (not ( = in3 64))) (not ( = in3 35))) (not ( = in3 36)))  ( =  in3 37)) (not ( = in4 64))) (not ( = in4 35))) (not ( = in4 36)))  ( =  in4 37)) (not ( = in5 64))) (not ( = in5 35))) (not ( = in5 36)))  ( =  in5 37)) (not ( = in6 64))) (not ( = in6 35))) (not ( = in6 36)))  ( =  in6 37)) (not ( = in7 64))) (not ( = in7 35))) (not ( = in7 36)))  ( =  in7 37)) (not ( = in8 64))) (not ( = in8 35))) (not ( = in8 36)))  ( =  in8 37)) (not ( = in9 64))) (not ( = in9 35))) (not ( = in9 36)))  ( =  in9 37)))</answer>.
     Here are the known constraints:
     {examples}
     What is the constraint for N={N_question}?
@@ -202,7 +202,7 @@ where op is a logical operator (e.g., 'and', 'or', 'not') and var_i are variable
 All per-variable constraints must be combined using a top-level (assert (and ...)) clause.
 The output must be in exact, canonical SMT-LIB format without extra commentary in the constraint string.
 Show your work in <think> </think> tags. And return the final SMT-LIB constraint string in <answer> </answer> tags.
-For example: <think>There are no constraints</think><answer>None</answer>.
+For example: <answer>(assert (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (not ( = in0 64)) (not ( = in0 35))) (not ( = in0 36)))  ( =  in0 37)) (not ( = in1 64))) (not ( = in1 35))) (not ( = in1 36)))  ( =  in1 37)) (not ( = in2 64))) (not ( = in2 35))) (not ( = in2 36)))  ( =  in2 37)) (not ( = in3 64))) (not ( = in3 35))) (not ( = in3 36)))  ( =  in3 37)) (not ( = in4 64))) (not ( = in4 35))) (not ( = in4 36)))  ( =  in4 37)) (not ( = in5 64))) (not ( = in5 35))) (not ( = in5 36)))  ( =  in5 37)) (not ( = in6 64))) (not ( = in6 35))) (not ( = in6 36)))  ( =  in6 37)) (not ( = in7 64))) (not ( = in7 35))) (not ( = in7 36)))  ( =  in7 37)) (not ( = in8 64))) (not ( = in8 35))) (not ( = in8 36)))  ( =  in8 37)) (not ( = in9 64))) (not ( = in9 35))) (not ( = in9 36)))  ( =  in9 37)))</answer>.
 Here are the known constraints:
 {examples}
 What is the constraint for N={N_question}?
