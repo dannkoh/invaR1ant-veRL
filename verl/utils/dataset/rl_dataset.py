@@ -23,6 +23,7 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoTokenizer, PreTrainedTokenizer
 from verl.utils.fs import copy_local_path_from_hdfs
+import json
 
 from verl.utils.model import compute_position_id_with_mask
 import verl.utils.torch_functional as verl_F
@@ -150,13 +151,21 @@ class RLHFDataset(Dataset):
                 )
         else:
             # Do not add chat template (tokens like <|im_start|>user Can I ask a question?<|im_end|> <|im_start|>assistant) for non-instruct models
+            if isinstance(chat, str):
+                try:
+                    chat = json.loads(chat)
+                except json.JSONDecodeError:
+                    # If it fails, leave chat as the original string
+                    pass
+
+            # Build the final prompt from the chat structure
             if isinstance(chat, list):
-                # Join the content of each message
                 prompt_with_chat_template = " ".join(msg.get("content", "") for msg in chat)
             elif isinstance(chat, dict):
                 prompt_with_chat_template = chat.get("content", "")
             else:
                 prompt_with_chat_template = str(chat)
+
             print("prompt without any modifications", prompt_with_chat_template)
 
         input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
