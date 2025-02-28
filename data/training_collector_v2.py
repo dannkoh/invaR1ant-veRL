@@ -47,49 +47,6 @@ def group_smt2_files(base_dir: str) -> dict[str, dict[int, Path]]:
     return problems_files
 
 
-def extract_variable_names(constants_text: str) -> set[str]:
-    """
-    Extract variable names from constants text using the pattern in declare-const lines.
-    """
-    if not constants_text:
-        return set()
-    return set(re.findall(r"\(declare-const\s+(\S+)", constants_text))
-
-
-def rename_variables_in_texts(texts: list[str], constants_text: str, seed: int):
-    """
-    Rename variable names in a list of texts (examples + answer solution)
-    based on variable names extracted from constants_text.
-
-    Returns a tuple: (renamed_texts, renamed_constants_text, mapping)
-    """
-    mapping = {}
-    if constants_text:
-        var_names = list(extract_variable_names(constants_text))
-        rng = random.Random(seed)
-        # Use a diverse set of candidate prefixes.
-        prefixes = ["in", "var", "tmp", "aux", "res", "out", "arg", "param", "local", "global"]
-        prefixes.extend(list("abcdefghijklmnopqrstuvwxyz"))
-        new_names = [f"{rng.choice(prefixes)}_{i+1}" for i in range(len(var_names))]
-        mapping = dict(zip(var_names, new_names))
-
-    if mapping:
-        pattern = re.compile(r"\b(" + "|".join(re.escape(key) for key in mapping.keys()) + r")\b")
-
-        def replace_vars(text: str) -> str:
-            if not text:
-                return text
-            return pattern.sub(lambda m: mapping[m.group(0)], text)
-    else:
-        def replace_vars(text: str) -> str:
-            return text
-
-    renamed_texts = [replace_vars(t) for t in texts]
-    renamed_constants_text = replace_vars(constants_text) if constants_text else None
-
-    return renamed_texts, renamed_constants_text, mapping
-
-
 def make_prefix(model: str, examples: str, N_question: int, instruct: bool) -> str:
     """
     Construct the prompt that wraps example constraints and asks for an answer for N_question.
@@ -99,30 +56,29 @@ def make_prefix(model: str, examples: str, N_question: int, instruct: bool) -> s
 
     if instruct:
         return f"""<|im_start|>system
-    You are a helpful assistant.
-    You first think about the reasoning process in your mind and then provide the user with the answer.
-    <|im_end|>
-    <|im_start|>user
-    Your role is to take a known pattern of symbolic constraints that represent the longest execution path of a program 
-    and generalize it for any given input size N.
-    When you receive an input value N,
-    you must generate a canonical SMT-LIB constraint string that adheres to the following rules:
-    (assert (op (op (op var_1 var_2)) (op (op var_3 var_4)) (op (op var_5 var_6)) (op var_7 var_8)))
-    where op is a logical operator (e.g., 'and', 'or', 'not') and var_i are variables or constants.
-    All per-variable constraints must be combined using a top-level (assert (and ...)) clause.
-    The output must be in exact, canonical SMT-LIB format without extra commentary in the constraint string.
-    Show your work in <think> </think> tags. And return the final SMT-LIB constraint string in <answer> </answer> tags.
-    For example: <answer>(assert (and  ( >=  in0 97)  ( <=  in0 122)))</answer>.
-    Here are the known constraints:
-    {examples}
-    What is the constraint for N={N_question}?
-    <|im_end|>
-    <|im_start|>assistant
-    Let me solve this step by step.
-    <think>"""
-
-    # "chat" style format if not instruct
-    return f"""A conversation between User and Assistant. The user asks a question, and the Assistant solves it.
+You are a helpful assistant.
+You first think about the reasoning process in your mind and then provide the user with the answer.<|im_end|>
+<|im_start|>user
+Your role is to take a known pattern of symbolic constraints that represent the longest execution path of a program 
+and generalize it for any given input size N.
+When you receive an input value N,
+you must generate a canonical SMT-LIB constraint string that adheres to the following rules:
+(assert (op (op (op var_1 var_2)) (op (op var_3 var_4)) (op (op var_5 var_6)) (op var_7 var_8)))
+where op is a logical operator (e.g., 'and', 'or', 'not') and var_i are variables or constants.
+All per-variable constraints must be combined using a top-level (assert (and ...)) clause.
+The output must be in exact, canonical SMT-LIB format without extra commentary in the constraint string.
+Show your work in <think> </think> tags. And return the final SMT-LIB constraint string in <answer> </answer> tags.
+For example: <answer>(assert (and  ( >=  in0 97)  ( <=  in0 122)))</answer>.
+Here are the known constraints:
+{examples}
+What is the constraint for N={N_question}?
+<|im_end|>
+<|im_start|>assistant
+Let me solve this step by step.
+<think>"""
+    else:
+        # "chat" style format if not instruct
+        return f"""A conversation between User and Assistant. The user asks a question, and the Assistant solves it.
 User: Your role is to take a known pattern of symbolic constraints that represent the longest execution path of a program 
 and generalize it for any given input size N.
 When you receive an input value N,
@@ -145,9 +101,6 @@ def generate_consecutive_index_pairs(max_n: int, min_examples: int, max_examples
     Yields only *consecutive* combos of size k in [min_examples..max_examples].
     For each combo, yields up to 'difference' possible answer_indices = last_example + d,
     so long as (answer_index <= max_n).
-
-    For example, if k=3 and difference=3, (1,2,3) can pair with answer=4,5,6 if they are <= max_n.
-    Then (2,3,4) pairs with answer=5,6,7, etc.
     """
     for k in range(min_examples, max_examples + 1):
         # consecutive runs of length k
@@ -167,14 +120,14 @@ def generate_question_entries_for_problem(
     instruct: bool,
     min_examples: int = 1,
     max_examples: int = 10,
-    difference: int = 3,
+    difference: int = 5,
     max_n: int = 30
 ) -> list[dict]:
     """
     For a single problem, generate question instances by:
-      1) Generating *consecutive* index combos (rather than all combinations).
+      1) Generating *consecutive* index combos.
       2) Caching parsed file contents.
-      3) Renaming variables to avoid collisions.
+      3) (No variable renaming) => keep the original variable names from each file.
       4) Building question + answer entries with metadata.
     """
     # Pre-cache parsed file data to avoid re-reading the same file multiple times.
@@ -183,53 +136,39 @@ def generate_question_entries_for_problem(
     question_entries = []
 
     for combo, answer_index in generate_consecutive_index_pairs(max_n, min_examples, max_examples, difference):
-        # Deterministic seed for per-(combo, answer_index)
+        # Deterministic seed (you can still keep this for any ordering or other logic if needed)
         seed_input = f"{problem}_{combo}_{answer_index}_{global_seed}"
         local_seed = int(hashlib.md5(seed_input.encode()).hexdigest(), 16) % (2**32)
 
-        # Grab the answer data, if it exists
+        # Get the answer data, if it exists
         answer_parsed = parsed_files.get(answer_index, {"constants": None, "solution": None})
 
-        # Get each example from cache
+        # Gather each example from cache
         examples = []
         for i in combo:
             parsed = parsed_files.get(i, {"constants": None, "solution": None})
             examples.append({"index": i, "solution": parsed["solution"]})
 
-        # Combine example solutions + the answer solution for consistent variable renaming
-        all_texts = [ex["solution"] for ex in examples] + [answer_parsed["solution"]]
-        rename_seed_input = f"{problem}_{combo}_{answer_index}_rename_{global_seed}"
-        rename_seed = int(hashlib.md5(rename_seed_input.encode()).hexdigest(), 16) % (2**32)
-
-        renamed_texts, renamed_answer_constants, mapping = rename_variables_in_texts(
-            all_texts,
-            answer_parsed["constants"],
-            rename_seed
-        )
-
-        # Separate the renamed solutions back out
-        renamed_examples = [
-            {"index": ex["index"], "solution": renamed_texts[idx]}
-            for idx, ex in enumerate(examples)
-        ]
-        renamed_answer_solution = renamed_texts[-1]
+        # Since we are NOT renaming now, keep the original text
+        renamed_answer_constants = answer_parsed["constants"]
+        renamed_answer_solution = answer_parsed["solution"]
 
         # Build the multi-example "Here are the known constraints" string
         examples_str = "\n".join(
-            f"N={ex['index']}: {ex['solution']}" for ex in renamed_examples
+            f"N={ex['index']}: {ex['solution']}" for ex in examples
         )
+
         # Create the Q&A prompt
         question_text = make_prefix("Qwen", examples_str, answer_index, instruct)
 
         entry = {
             "problem": problem,
             "example_indices": list(combo),
-            "examples": renamed_examples,
+            "examples": examples,
             "question": question_text,
             "answer_index": answer_index,
             "answer_constants": renamed_answer_constants,
             "answer_solution": renamed_answer_solution,
-            "variable_mapping": mapping,
         }
         question_entries.append(entry)
 
@@ -243,14 +182,14 @@ def collect_smt2_dataframe(base_dir: str, global_seed: int, instruct: bool) -> p
     problems_files = group_smt2_files(base_dir)
     all_entries = []
     for problem, files_dict in tqdm(problems_files.items()):
-        # Here you can adjust parameters as needed:
+        # Adjust the parameters below as needed:
         entries = generate_question_entries_for_problem(
             files_dict,
             problem,
             global_seed,
             instruct,
-            min_examples=1,     # e.g. only run length 3
-            max_examples=5,     # you could allow up to 5 if you want (3..5)
+            min_examples=1,    
+            max_examples=10,    
             difference=5,
             max_n=30
         )
