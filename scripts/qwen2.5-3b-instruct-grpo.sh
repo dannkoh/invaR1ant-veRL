@@ -24,7 +24,7 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=16 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.5 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=16 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.kl_ctrl.kl_coef=0.001 \
@@ -32,6 +32,6 @@ python3 -u -m verl.trainer.main_ppo \
     trainer.project_name=ConStruct \
     trainer.experiment_name='qwen2.5-3b-instruct-grpo' \
     trainer.n_gpus_per_node=2 \
-    trainer.save_freq=1 \
+    trainer.save_freq=3 \
     trainer.test_freq=1 \
     trainer.total_epochs=15 $@

@@ -104,6 +104,8 @@ def check_logical_equivalence(original_assertions, generated_assertions, constan
         output = proc.stdout.strip()
         # Gather any error messages.
         results = [line for line in output.splitlines() if line in ("sat", "unsat", "unknown")]
+        print(f"\nOriginal Assertions:\n{original_assertions}\n\nGenerated:\n{generated_assertions}\n\n")
+        print(f"\nZ3 output:\n{output}\n{"-" * 60}\n")
         if len(results) < 2:
             return {"result": False, "reason": "Incomplete Z3 output."}
 
