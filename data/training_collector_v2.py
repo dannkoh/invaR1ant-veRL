@@ -2,11 +2,8 @@ import argparse
 import hashlib
 import random
 import re
-import uuid
-from itertools import combinations
 from pathlib import Path
 from tqdm import tqdm
-from functools import lru_cache
 
 import pandas as pd
 
@@ -54,18 +51,20 @@ def extract_variable_names(constants_text: str) -> set[str]:
     """
     Extract variable names from constants text using the pattern in declare-const lines.
     """
+    if not constants_text:
+        return set()
     return set(re.findall(r"\(declare-const\s+(\S+)", constants_text))
 
 
-def rename_variables_in_texts(texts: list[str], constants_text: str, seed: int) -> (list[str], str, dict):
+def rename_variables_in_texts(texts: list[str], constants_text: str, seed: int):
     """
-    Rename variable names in a list of texts (e.g. example solution texts and answer solution text)
+    Rename variable names in a list of texts (examples + answer solution)
     based on variable names extracted from constants_text.
 
     Returns a tuple: (renamed_texts, renamed_constants_text, mapping)
     """
     mapping = {}
-    if constants_text is not None:
+    if constants_text:
         var_names = list(extract_variable_names(constants_text))
         rng = random.Random(seed)
         # Use a diverse set of candidate prefixes.
@@ -76,20 +75,25 @@ def rename_variables_in_texts(texts: list[str], constants_text: str, seed: int) 
 
     if mapping:
         pattern = re.compile(r"\b(" + "|".join(re.escape(key) for key in mapping.keys()) + r")\b")
+
         def replace_vars(text: str) -> str:
-            if text is None:
-                return None
+            if not text:
+                return text
             return pattern.sub(lambda m: mapping[m.group(0)], text)
     else:
         def replace_vars(text: str) -> str:
             return text
 
     renamed_texts = [replace_vars(t) for t in texts]
-    renamed_constants_text = replace_vars(constants_text) if constants_text is not None else None
+    renamed_constants_text = replace_vars(constants_text) if constants_text else None
+
     return renamed_texts, renamed_constants_text, mapping
 
 
-def make_prefix(model, examples, N_question, instruct) -> str:  # noqa: N803
+def make_prefix(model: str, examples: str, N_question: int, instruct: bool) -> str:
+    """
+    Construct the prompt that wraps example constraints and asks for an answer for N_question.
+    """
     if not model.startswith("Qwen"):
         raise NotImplementedError("Only Qwen models are supported.")
 
@@ -117,8 +121,8 @@ def make_prefix(model, examples, N_question, instruct) -> str:  # noqa: N803
     Let me solve this step by step.
     <think>"""
 
+    # "chat" style format if not instruct
     return f"""A conversation between User and Assistant. The user asks a question, and the Assistant solves it.
-The assistant first thinks about the reasoning process in the mind and then provides the user with the answer.
 User: Your role is to take a known pattern of symbolic constraints that represent the longest execution path of a program 
 and generalize it for any given input size N.
 When you receive an input value N,
@@ -136,14 +140,20 @@ Assistant: Let me solve this step by step.
 <think>"""
 
 
-def generate_index_pairs_generator(max_n: int, min_examples: int, max_examples: int, difference: int):
+def generate_consecutive_index_pairs(max_n: int, min_examples: int, max_examples: int, difference: int):
     """
-    Generator version that yields (combo, answer_index) pairs without storing all of them in memory.
+    Yields only *consecutive* combos of size k in [min_examples..max_examples].
+    For each combo, yields up to 'difference' possible answer_indices = last_example + d,
+    so long as (answer_index <= max_n).
+
+    For example, if k=3 and difference=3, (1,2,3) can pair with answer=4,5,6 if they are <= max_n.
+    Then (2,3,4) pairs with answer=5,6,7, etc.
     """
-    candidate_indices = list(range(1, max_n + 1))
     for k in range(min_examples, max_examples + 1):
-        for combo in combinations(candidate_indices, k):
-            last_example = combo[-1]  # combinations yield sorted tuples
+        # consecutive runs of length k
+        for start in range(1, max_n - k + 2):
+            combo = tuple(range(start, start + k))
+            last_example = combo[-1]
             for d in range(1, difference + 1):
                 answer_index = last_example + d
                 if answer_index <= max_n:
@@ -156,35 +166,37 @@ def generate_question_entries_for_problem(
     global_seed: int,
     instruct: bool,
     min_examples: int = 1,
-    max_examples: int = 5,
+    max_examples: int = 10,
     difference: int = 3,
     max_n: int = 30
 ) -> list[dict]:
     """
     For a single problem, generate question instances by:
-      1) Using a generator for index pairs to avoid holding all combinations in memory.
+      1) Generating *consecutive* index combos (rather than all combinations).
       2) Caching parsed file contents.
+      3) Renaming variables to avoid collisions.
+      4) Building question + answer entries with metadata.
     """
     # Pre-cache parsed file data to avoid re-reading the same file multiple times.
     parsed_files = {i: parse_smt2_file(path) for i, path in files_dict.items()}
 
     question_entries = []
 
-    for combo, answer_index in generate_index_pairs_generator(max_n, min_examples, max_examples, difference):
+    for combo, answer_index in generate_consecutive_index_pairs(max_n, min_examples, max_examples, difference):
         # Deterministic seed for per-(combo, answer_index)
         seed_input = f"{problem}_{combo}_{answer_index}_{global_seed}"
         local_seed = int(hashlib.md5(seed_input.encode()).hexdigest(), 16) % (2**32)
 
-        # Get answer data from cache if it exists.
+        # Grab the answer data, if it exists
         answer_parsed = parsed_files.get(answer_index, {"constants": None, "solution": None})
 
-        # Retrieve each example from cache.
+        # Get each example from cache
         examples = []
         for i in combo:
             parsed = parsed_files.get(i, {"constants": None, "solution": None})
             examples.append({"index": i, "solution": parsed["solution"]})
 
-        # Combine example texts and answer text for variable renaming.
+        # Combine example solutions + the answer solution for consistent variable renaming
         all_texts = [ex["solution"] for ex in examples] + [answer_parsed["solution"]]
         rename_seed_input = f"{problem}_{combo}_{answer_index}_rename_{global_seed}"
         rename_seed = int(hashlib.md5(rename_seed_input.encode()).hexdigest(), 16) % (2**32)
@@ -195,15 +207,18 @@ def generate_question_entries_for_problem(
             rename_seed
         )
 
+        # Separate the renamed solutions back out
         renamed_examples = [
             {"index": ex["index"], "solution": renamed_texts[idx]}
             for idx, ex in enumerate(examples)
         ]
         renamed_answer_solution = renamed_texts[-1]
 
+        # Build the multi-example "Here are the known constraints" string
         examples_str = "\n".join(
             f"N={ex['index']}: {ex['solution']}" for ex in renamed_examples
         )
+        # Create the Q&A prompt
         question_text = make_prefix("Qwen", examples_str, answer_index, instruct)
 
         entry = {
@@ -224,20 +239,19 @@ def generate_question_entries_for_problem(
 def collect_smt2_dataframe(base_dir: str, global_seed: int, instruct: bool) -> pd.DataFrame:
     """
     Collect and organize SMT2 data from the specified directory into a DataFrame.
-    Processes each problem incrementally to reduce memory usage.
     """
     problems_files = group_smt2_files(base_dir)
     all_entries = []
     for problem, files_dict in tqdm(problems_files.items()):
-        # Adjust these parameters as needed.
+        # Here you can adjust parameters as needed:
         entries = generate_question_entries_for_problem(
             files_dict,
             problem,
             global_seed,
             instruct,
-            min_examples=3,
-            max_examples=5,
-            difference=3,
+            min_examples=1,     # e.g. only run length 3
+            max_examples=5,     # you could allow up to 5 if you want (3..5)
+            difference=5,
             max_n=30
         )
         all_entries.extend(entries)
@@ -246,9 +260,6 @@ def collect_smt2_dataframe(base_dir: str, global_seed: int, instruct: bool) -> p
 
 
 def parse_arguments() -> argparse.Namespace:
-    """
-    Parse command-line arguments.
-    """
     parser = argparse.ArgumentParser(
         description="Collect and organize SMT2 file data into a DataFrame and save as a Parquet file."
     )
@@ -260,9 +271,6 @@ def parse_arguments() -> argparse.Namespace:
 
 
 def main() -> None:
-    """
-    Collect SMT2 data, generate question instances, create a DataFrame, and write it to a Parquet file.
-    """
     args = parse_arguments()
     df = collect_smt2_dataframe(args.base_dir, args.seed, args.instruct)
     df.to_parquet(args.output)
