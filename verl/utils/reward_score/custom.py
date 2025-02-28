@@ -152,7 +152,6 @@ def extract_solution(response: str, is_instruct: bool) -> str:
         )
     else:
         pattern = (
-            r".*<|im_start|>assistant\s*.*?"      # Allow any text (including the prompt) before the tokens.
             r"<think>\s*(.*?)\s*</think>\s*"         # Capture chain-of-thought.
             r"<answer>\s*(.*?)\s*</answer>"       # Capture answer block, with no extra text after.
         )
