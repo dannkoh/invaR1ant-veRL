@@ -145,19 +145,10 @@ def extract_solution(response: str, is_instruct: bool) -> str:
     Returns:
       str: The solution string from the <answer> block, or None if formatting fails.
     """
-    if not is_instruct:
-        pattern = (
-            r".*<think>\s*(.*?)\s*</think>\s*"   # Capture chain-of-thought block.
-            r"<answer>\s*(.*?)\s*</answer>\s*"    # Capture answer block and require end-of-string.
-        )
-    else:
-        pattern = (
-            r"<think>\s*(.*?)\s*</think>\s*"         # Capture chain-of-thought.
-            r"<answer>\s*(.*?)\s*</answer>"       # Capture answer block, with no extra text after.
-        )
 
+    pattern = r"<think>\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>"
     # Use fullmatch to ensure the response ends exactly after the answer block.
-    match = re.fullmatch(pattern, response, re.DOTALL)
+    match = re.search(pattern, response, re.DOTALL)
 
     print(f"\n\n{'#'*30}DEBUG{'#'*30}\n\n{response}\n{'-'*60}", flush=True)
 
