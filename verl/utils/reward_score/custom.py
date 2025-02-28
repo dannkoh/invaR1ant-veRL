@@ -31,7 +31,7 @@ def compute_score(solution_str: str, ground_truth: str, extra_info: dict[str,str
     print("#"*60, flush=True)
 
 
-    if not result["result"] and result["reason"] == "Not Equivalent":
+    if (not result["result"] and result["reason"] == "Not Equivalent") or (not result["result"] and result["reason"] == "Incomplete Z3 output."):
         return 0.1
     elif not result["result"]:
         return 0
@@ -159,7 +159,9 @@ def extract_solution(response: str, is_instruct: bool) -> str:
 
     # Use fullmatch to ensure the response ends exactly after the answer block.
     match = re.fullmatch(pattern, response, re.DOTALL)
-    if match is None:
+    # Count the number of answer tokens in the response, should be 1 each.
+    openAnswer, closeAnswer = response.count("<answer>"), response.count("</answer>")
+    if match is None or openAnswer != 1 or closeAnswer != 1:
         return None
 
     chain_of_thought = match.group(1).strip()
