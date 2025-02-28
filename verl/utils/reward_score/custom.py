@@ -159,15 +159,16 @@ def extract_solution(response: str, is_instruct: bool) -> str:
 
     # Use fullmatch to ensure the response ends exactly after the answer block.
     match = re.fullmatch(pattern, response, re.DOTALL)
-    # Count the number of answer tokens in the response, should be 1 each.
-    openAnswer, closeAnswer = response.count("<answer>"), response.count("</answer>")
-    if match is None or openAnswer != 1 or closeAnswer != 1:
+    if match is None:
         return None
 
     chain_of_thought = match.group(1).strip()
     solution = match.group(2).strip()
 
+    if "<answer>" in solution or "</answer>" in solution:
+        return None
+
     # Debug output showing the first 50 characters of each block.
-    print(f"\n\n{'#'*30}DEBUG{'#'*30}\n\n{response}\n{'-'*60}\nChain-of-thought: {chain_of_thought}\nSolution (first 50 chars): {solution}\n{'-'*60}", flush=True)
+    print(f"\n\n{'#'*30}DEBUG{'#'*30}\n\n{response}\n{'-'*60}\nChain-of-thought: {chain_of_thought}\nSolution: {solution}\n{'-'*60}", flush=True)
 
     return solution
