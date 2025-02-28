@@ -148,13 +148,13 @@ def extract_solution(response: str, is_instruct: bool) -> str:
     if not is_instruct:
         pattern = (
             r".*<think>\s*(.*?)\s*</think>\s*"   # Capture chain-of-thought block.
-            r"<answer>\s*(.*?)\s*</answer>\s*$"    # Capture answer block and require end-of-string.
+            r"<answer>\s*(.*?)\s*</answer>\s*"    # Capture answer block and require end-of-string.
         )
     else:
         pattern = (
             r".*<im_start>.*?assistant:\s*.*?"      # Allow any text (including the prompt) before the tokens.
             r"<think>\s*(.*?)\s*</think>\s*"         # Capture chain-of-thought.
-            r"<answer>\s*(.*?)\s*</answer>\s*$"       # Capture answer block, with no extra text after.
+            r"<answer>\s*(.*?)\s*</answer>"       # Capture answer block, with no extra text after.
         )
 
     # Use fullmatch to ensure the response ends exactly after the answer block.
