@@ -146,7 +146,7 @@ def extract_solution(response: str, is_instruct: bool) -> str:
       str: The solution string from the <answer> block, or None if formatting fails.
     """
 
-    pattern = r"<think>\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>"
+    pattern = r"Let me solve this step by step.\s*<think>\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>"
     # Use fullmatch to ensure the response ends exactly after the answer block.
     match = re.search(pattern, response, re.DOTALL)
 
