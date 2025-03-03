@@ -95,27 +95,27 @@ def make_prefix(model, examples, N_question, instruct) -> str:  # noqa: N803
 
     if instruct:
         return f"""<|im_start|>system
-    You are a helpful assistant.
-    You first think about the reasoning process in your mind and then provide the user with the answer.
-    <|im_end|>
-    <|im_start|>user
-    Your role is to take a known pattern of symbolic constraints that represent the longest execution path of a program 
-    and generalize it for any given input size N.
-    When you receive an input value N,
-    you must generate a canonical SMT-LIB constraint string that adheres to the following rules:
-    (assert (op (op (op var_1 var_2)) (op (op var_3 var_4)) (op (op var_5 var_6)) (op var_7 var_8)))
-    where op is a logical operator (e.g., 'and', 'or', 'not') and var_i are variables or constants.
-    All per-variable constraints must be combined using a top-level (assert (and ...)) clause.
-    The output must be in exact, canonical SMT-LIB format without extra commentary in the constraint string.
-    Show your work in <think> </think> tags. And return the final SMT-LIB constraint string in <answer> </answer> tags.
-    For example: <answer>(assert (and  ( >=  in0 97)  ( <=  in0 122)))</answer>.
-    Here are the known constraints:
-    {examples}
-    What is the constraint for N={N_question}?
-    <|im_end|>
-    <|im_start|>assistant
-    Let me solve this step by step.
-    <think>"""
+You are a helpful assistant.
+You first think about the reasoning process in your mind and then provide the user with the answer.
+<|im_end|>
+<|im_start|>user
+Your role is to take a known pattern of symbolic constraints that represent the longest execution path of a program 
+and generalize it for any given input size N.
+When you receive an input value N,
+you must generate a canonical SMT-LIB constraint string that adheres to the following rules:
+(assert (op (op (op var_1 var_2)) (op (op var_3 var_4)) (op (op var_5 var_6)) (op var_7 var_8)))
+where op is a logical operator (e.g., 'and', 'or', 'not') and var_i are variables or constants.
+All per-variable constraints must be combined using a top-level (assert (and ...)) clause.
+The output must be in exact, canonical SMT-LIB format without extra commentary in the constraint string.
+Show your work in <think> </think> tags. And return the final SMT-LIB constraint string in <answer> </answer> tags.
+For example: <answer>(assert (and  ( >=  in0 97)  ( <=  in0 122)))</answer>.
+Here are the known constraints:
+{examples}
+What is the constraint for N={N_question}?
+<|im_end|>
+<|im_start|>assistant
+Let me solve this step by step.
+<think>"""
 
     return f"""A conversation between User and Assistant. The user asks a question, and the Assistant solves it.
 The assistant first thinks about the reasoning process in the mind and then provides the user with the answer.
