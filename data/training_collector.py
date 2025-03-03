@@ -57,36 +57,10 @@ def extract_variable_names(constants_text: str) -> set[str]:
 
 def rename_variables_in_texts(texts: list[str], constants_text: str, seed: int) -> (list[str], str, dict):
     """
-    Rename variable names in a list of texts (e.g. example solution texts and answer solution text)
-    based on variable names extracted from constants_text.
-
-    Returns a tuple: (renamed_texts, renamed_constants_text, mapping)
+    (Modified) Removed the renaming/masking of variables.
+    Simply returns the original texts, constants text, and an empty mapping.
     """
-    mapping = {}
-    if constants_text is not None:
-        var_names = list(extract_variable_names(constants_text))
-        rng = random.Random(seed)
-        # Use a diverse set of candidate prefixes.
-        prefixes = ["in", "var", "tmp", "aux", "res", "out", "arg", "param", "local", "global"]
-        prefixes.extend(list("abcdefghijklmnopqrstuvwxyz"))
-        new_names = []
-        for i in range(len(var_names)):
-            prefix = rng.choice(prefixes)
-            # Append a sequential index to ensure uniqueness.
-            new_names.append(f"{prefix}_{i+1}")
-        mapping = dict(zip(var_names, new_names))
-
-    def replace_vars(text: str) -> str:
-        if text is None:
-            return None
-        if not mapping:
-            return text
-        pattern = re.compile(r"\b(" + "|".join(re.escape(key) for key in mapping.keys()) + r")\b")
-        return pattern.sub(lambda m: mapping[m.group(0)], text)
-
-    renamed_texts = [replace_vars(t) for t in texts]
-    renamed_constants_text = replace_vars(constants_text) if constants_text is not None else None
-    return renamed_texts, renamed_constants_text, mapping
+    return texts, constants_text, {}
 
 
 def generate_question_entries_for_problem(
@@ -134,30 +108,29 @@ def generate_question_entries_for_problem(
             all_texts = [ex["solution"] for ex in examples] + [answer_parsed["solution"]]
             rename_seed_input = f"{problem}_{combo}_{chosen_answer_index}_rename_{global_seed}"
             rename_seed = int(hashlib.md5(rename_seed_input.encode()).hexdigest(), 16) % (2**32)
+            # The renaming function now simply returns the original texts.
             renamed_texts, renamed_answer_constants, mapping = rename_variables_in_texts(
                 all_texts, answer_parsed["constants"], rename_seed
             )
 
-            # Update examples with renamed solution texts.
+            # Update examples with (unchanged) solution texts.
             renamed_examples = []
             for idx, ex in enumerate(examples):
                 renamed_examples.append({"index": ex["index"], "solution": renamed_texts[idx]})
             renamed_answer_solution = renamed_texts[-1]
 
-            # Create a question text using the renamed examples.
+            # Create a question text using the (unchanged) examples.
             examples_str = "\n".join(f"N={ex['index']}: {ex['solution']}" for ex in renamed_examples)
             question_text = make_prefix("Qwen", examples_str, chosen_answer_index, instruct)
 
             entry = {
                 "problem": problem,
-                "problem_uuid": str(uuid.uuid4()),
                 "example_indices": list(combo),
                 "examples": renamed_examples,
                 "question": question_text,
                 "answer_index": chosen_answer_index,
                 "answer_constants": renamed_answer_constants,
                 "answer_solution": renamed_answer_solution,
-                "variable_mapping": mapping,
             }
             question_entries.append(entry)
     return question_entries
@@ -182,7 +155,7 @@ def make_prefix(model, examples, N_question, instruct) -> str:  # noqa: N803
     All per-variable constraints must be combined using a top-level (assert (and ...)) clause.
     The output must be in exact, canonical SMT-LIB format without extra commentary in the constraint string.
     Show your work in <think> </think> tags. And return the final SMT-LIB constraint string in <answer> </answer> tags.
-    For example: <answer>(assert (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (not ( = in0 64)) (not ( = in0 35))) (not ( = in0 36)))  ( =  in0 37)) (not ( = in1 64))) (not ( = in1 35))) (not ( = in1 36)))  ( =  in1 37)) (not ( = in2 64))) (not ( = in2 35))) (not ( = in2 36)))  ( =  in2 37)) (not ( = in3 64))) (not ( = in3 35))) (not ( = in3 36)))  ( =  in3 37)) (not ( = in4 64))) (not ( = in4 35))) (not ( = in4 36)))  ( =  in4 37)) (not ( = in5 64))) (not ( = in5 35))) (not ( = in5 36)))  ( =  in5 37)) (not ( = in6 64))) (not ( = in6 35))) (not ( = in6 36)))  ( =  in6 37)) (not ( = in7 64))) (not ( = in7 35))) (not ( = in7 36)))  ( =  in7 37)) (not ( = in8 64))) (not ( = in8 35))) (not ( = in8 36)))  ( =  in8 37)) (not ( = in9 64))) (not ( = in9 35))) (not ( = in9 36)))  ( =  in9 37)))</answer>.
+    For example: <answer>(assert (and  ( >=  in0 97)  ( <=  in0 122)))</answer>.
     Here are the known constraints:
     {examples}
     What is the constraint for N={N_question}?
@@ -202,7 +175,7 @@ where op is a logical operator (e.g., 'and', 'or', 'not') and var_i are variable
 All per-variable constraints must be combined using a top-level (assert (and ...)) clause.
 The output must be in exact, canonical SMT-LIB format without extra commentary in the constraint string.
 Show your work in <think> </think> tags. And return the final SMT-LIB constraint string in <answer> </answer> tags.
-For example: <answer>(assert (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (not ( = in0 64)) (not ( = in0 35))) (not ( = in0 36)))  ( =  in0 37)) (not ( = in1 64))) (not ( = in1 35))) (not ( = in1 36)))  ( =  in1 37)) (not ( = in2 64))) (not ( = in2 35))) (not ( = in2 36)))  ( =  in2 37)) (not ( = in3 64))) (not ( = in3 35))) (not ( = in3 36)))  ( =  in3 37)) (not ( = in4 64))) (not ( = in4 35))) (not ( = in4 36)))  ( =  in4 37)) (not ( = in5 64))) (not ( = in5 35))) (not ( = in5 36)))  ( =  in5 37)) (not ( = in6 64))) (not ( = in6 35))) (not ( = in6 36)))  ( =  in6 37)) (not ( = in7 64))) (not ( = in7 35))) (not ( = in7 36)))  ( =  in7 37)) (not ( = in8 64))) (not ( = in8 35))) (not ( = in8 36)))  ( =  in8 37)) (not ( = in9 64))) (not ( = in9 35))) (not ( = in9 36)))  ( =  in9 37)))</answer>.
+For example: <answer>(assert (and  ( >=  in0 97)  ( <=  in0 122)))</answer>.
 Here are the known constraints:
 {examples}
 What is the constraint for N={N_question}?
