@@ -17,4 +17,4 @@ export HF_HOME=$TMPDIR
 cd ConStruct-veRL/
 source .venv/bin/activate
 
-./scripts/qwen2.5-3b-base-ppo.sh
+./scripts/qwen2.5-3b-instruct-ppo.sh
