@@ -14,7 +14,7 @@ export LD_PRELOAD=/opt/apps/compilers/gcc/13.3.0/lib64/libstdc++.so.6
 export HF_HOME=$TMPDIR
 
 # Activate virtual environment
-cd scratch/ConStruct-veRL/
+cd ConStruct-veRL/
 source .venv/bin/activate
 
-./scripts/qwen2.5-3b-instruct-grpo.sh
+./scripts/qwen2.5-7b-instruct-grpo.sh

@@ -4,13 +4,13 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 
 python3 -u -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
-    data.train_files=$HOME/scratch/ConStruct-veRL/data/train-instruct-v2.parquet \
-    data.val_files=$HOME/scratch/ConStruct-veRL/data/test-instruct-v2.parquet \
+    data.train_files=$HOME/scratch/ConStruct-veRL/data/train.parquet \
+    data.val_files=$HOME/scratch/ConStruct-veRL/data/test.parquet \
     data.train_batch_size=256 \
     data.val_batch_size=614 \
     data.max_prompt_length=1000 \
     data.max_response_length=1000 \
-    data.instruct=True \
+    data.instruct=False \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-3B-Instruct \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
@@ -30,8 +30,8 @@ python3 -u -m verl.trainer.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     +trainer.val_before_train=False \
     trainer.project_name=ConStruct \
-    trainer.experiment_name='qwen2.5-3b-instruct-grpo' \
+    trainer.experiment_name="qwen2.5-3b-base-grpo-v1" \
     trainer.n_gpus_per_node=2 \
-    trainer.save_freq=10 \
-    trainer.test_freq=5 \
-    trainer.total_epochs=15 $@
+    trainer.save_freq=100 \
+    trainer.test_freq=100 \
+    trainer.total_epochs=30 $@

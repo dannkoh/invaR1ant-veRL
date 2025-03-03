@@ -17,4 +17,4 @@ export HF_HOME=$TMPDIR
 cd scratch/ConStruct-veRL/
 source .venv/bin/activate
 
-./scripts/qwen2.5-3b-instruct-grpo.sh
+./scripts/qwen2.5-3b-base-grpo-v1.sh

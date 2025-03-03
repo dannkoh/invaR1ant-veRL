@@ -171,4 +171,4 @@ trainer:
   default_hdfs_dir: null
   remove_previous_ckpt_in_save: False
   del_local_ckpt_after_load: False
-  default_local_dir: checkpoints/${trainer.project_name}/${trainer.experiment_name}
+  default_local_dir: /mnt/iusers01/fse-ugpgt01/compsci01/n37169dk/scratch/checkpoints/${trainer.project_name}/${trainer.experiment_name}

@@ -4,8 +4,8 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 
 python3 -u -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
-    data.train_files=$HOME/ConStruct-veRL/data/train-base-v2.parquet \
-    data.val_files=$HOME/ConStruct-veRL/data/test-base-v2.parquet \
+    data.train_files=$HOME/scratch/ConStruct-veRL/data/train-base-v2.parquet \
+    data.val_files=$HOME/scratch/ConStruct-veRL/data/test-base-v2.parquet \
     data.train_batch_size=256 \
     data.val_batch_size=614 \
     data.max_prompt_length=1000 \
@@ -32,6 +32,6 @@ python3 -u -m verl.trainer.main_ppo \
     trainer.project_name=ConStruct \
     trainer.experiment_name="qwen2.5-3b-base-grpo" \
     trainer.n_gpus_per_node=2 \
-    trainer.save_freq=3 \
-    trainer.test_freq=1 \
+    trainer.save_freq=10 \
+    trainer.test_freq=5 \
     trainer.total_epochs=15 $@
