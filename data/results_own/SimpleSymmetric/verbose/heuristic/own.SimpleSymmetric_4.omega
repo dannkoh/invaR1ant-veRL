@@ -1,0 +1,1 @@
+{[ss3s2,ss2s3,ss3s0,ss0s3,ss2s1,ss1s2,ss3s1,ss1s3,ss1s0,ss0s1,ss2s0,ss0s2] : ss3s2==ss2s3&&ss3s1==ss1s3&&ss3s0==ss0s3&&ss2s1==ss1s2&&ss2s0==ss0s2&&ss1s0==ss0s1};

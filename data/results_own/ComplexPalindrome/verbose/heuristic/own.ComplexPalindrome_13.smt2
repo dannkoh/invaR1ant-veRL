@@ -1,0 +1,17 @@
+(declare-const in5 Int)
+(declare-const in8 Int)
+(declare-const in7 Int)
+(declare-const in11 Int)
+(declare-const in9 Int)
+(declare-const in10 Int)
+(declare-const in12 Int)
+(declare-const in0 Int)
+(declare-const in2 Int)
+(declare-const in1 Int)
+(declare-const in4 Int)
+(declare-const in3 Int)
+
+(assert (and (and (and (and (and  ( <  in0 in12)  ( <  in1 in11))  ( <  in2 in10))  ( <  in3 in9))  ( <  in4 in8))  ( <  in5 in7)))
+
+(check-sat)
+(get-model)

@@ -1,0 +1,27 @@
+{
+    "failures": {},
+    "passes": {
+        "SimpleAscendingLast": 29,
+        "BadgerUsername": 13,
+        "ComplexOddsEvens": 29,
+        "WeirdConstDiff": 28,
+        "WeirdHundred": 29,
+        "ComplexPalindrome": 29,
+        "SimpleSignFlip": 29,
+        "SameLowercase": 30,
+        "BadgerHash": 30,
+        "SimpleTrueFalse": 30,
+        "SameString": 30,
+        "ComplexMidPeak": 29,
+        "SameHundred": 30,
+        "SameOnlyThird": 28,
+        "SimpleEveryThird": 27,
+        "SimpleUnique": 29,
+        "WeirdLoopMean": 30,
+        "WeirdFibonacci": 28,
+        "SimpleSymmetric": 29,
+        "BadgerPassword": 8,
+        "WeirdTimes": 29,
+        "ComplexHalfEqual": 29
+    }
+}
