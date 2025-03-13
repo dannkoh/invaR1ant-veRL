@@ -216,6 +216,16 @@ invaR1ant-veRL/
 
 <hr />
 
+<h2 id="citation" align="center">Citation</h2>
+
+<p>
+  If you find this project helpful, please cite:
+</p>
+<pre><code>Paper releasing soon!
+</code></pre>
+
+<hr />
+
 <h2 id="author" align="center">Author</h2>
 
 <div align="center">
