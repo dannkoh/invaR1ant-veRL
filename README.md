@@ -4,6 +4,7 @@
 <p align="center">
   <a href="#overview">Overview</a> •
   <a href="#key-features">Key Features</a> •
+  <a href="#published-results">Published Results</a> •
   <a href="#installation">Installation</a> •
   <a href="#project-structure">Project Structure</a> •
   <a href="#custom-modifications">Custom Modifications</a> •
@@ -65,6 +66,76 @@
 <p align="center">
   For a complete list of veRL's features, please refer to the <a href="https://verl.readthedocs.io">original documentation</a>.
 </p>
+
+<hr />
+
+<h2 id="published-results" align="center">Published Results</h2>
+
+<p>The <strong>invaR1ant</strong> project has released the following models and datasets, built upon the <a href="https://huggingface.co/Qwen/Qwen2.5-3B">Qwen 2.5</a> foundation models:</p>
+
+<h3 align="center">Base Models</h3>
+
+<table align="center">
+  <tr>
+    <th>Model</th>
+    <th>Description</th>
+    <th>Link</th>
+  </tr>
+  <tr>
+    <td><strong>Qwen2.5-3B</strong></td>
+    <td>Original foundation model developed by the Qwen team, featuring 3 billion parameters with strong multilingual capabilities and reasoning skills</td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-3B">HuggingFace Hub</a></td>
+  </tr>
+  <tr>
+    <td><strong>Qwen2.5-3B-Instruct</strong></td>
+    <td>Instruction-tuned variant of Qwen2.5-3B optimized for following user instructions and conversations</td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct">HuggingFace Hub</a></td>
+  </tr>
+</table>
+
+<h3 align="center">invaR1ant Models</h3>
+
+<table align="center">
+  <tr>
+    <th>Model</th>
+    <th>Description</th>
+    <th>Link</th>
+  </tr>
+  <tr>
+    <td><strong>invaR1ant-1.0</strong></td>
+    <td>Further refined Qwen2.5-3B base model trained with the invaR1ant-veRL framework using custom reward functions. Enhances logical consistency and reasoning capabilities while retaining the original model's strengths.</td>
+    <td><a href="https://huggingface.co/dannkoh/invaR1ant-1.0">HuggingFace Hub</a></td>
+  </tr>
+  <tr>
+    <td><strong>invaR1ant-1.0-Instruct</strong></td>
+    <td>Instruction-tuned variant of invaR1ant-1.0 optimized with RLHF techniques from veRL. Delivers improved instruction following, more consistent reasoning, and enhanced capabilities for complex tasks.</td>
+    <td><a href="https://huggingface.co/dannkoh/invaR1ant-1.0-Instruct">HuggingFace Hub</a></td>
+  </tr>
+</table>
+
+<h3 align="center">Key Enhancements over Qwen2.5</h3>
+
+<ul align="center" style="display: inline-block; text-align: left;">
+  <li>Customized reward models specifically designed for logical consistency</li>
+  <li>Additional fine-tuning on specialized datasets targeting reasoning capabilities</li>
+  <li>Improved performance on tasks requiring multi-step logical inference</li>
+  <li>Reduced tendency to generate incorrect or inconsistent statements</li>
+</ul>
+
+<h3 align="center">Datasets</h3>
+
+<table align="center">
+  <tr>
+    <th>Dataset</th>
+    <th>Description</th>
+    <th>Link</th>
+  </tr>
+  <tr>
+    <td><strong>invaR1ant-easy</strong></td>
+    <td>Specialized dataset for training v1.0 invaR1ant models, containing carefully crafted examples to enhance the model's reasoning capabilities while maintaining factual accuracy</td>
+    <td><a href="https://huggingface.co/datasets/dannkoh/invaR1ant-easy">HuggingFace Hub</a></td>
+  </tr>
+</table>
 
 <hr />
 
@@ -197,6 +268,27 @@ invaR1ant-veRL/
   <li><code>examples/ppo_trainer/</code>: PPO training Examples</li>
   <li><code>scripts/</code>: Scripts used for this project</li>
 </ul>
+
+<h3>Using Published Models</h3>
+
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# Load the base model
+model_name = "dannkoh/invaR1ant-1.0"
+model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# Or load the instruction-tuned model
+instruct_model_name = "dannkoh/invaR1ant-1.0-Instruct"
+instruct_model = AutoModelForCausalLM.from_pretrained(instruct_model_name)
+instruct_tokenizer = AutoTokenizer.from_pretrained(instruct_model_name)
+
+# Generate text with the model
+inputs = tokenizer("Generate a creative story about AI:", return_tensors="pt")
+outputs = model.generate(**inputs, max_length=200)
+print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+```
 
 <hr />
 
