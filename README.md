@@ -143,7 +143,7 @@
 
 <h3 align="center">Prerequisites</h3>
 
-<p>Before running the <code>requirements.txt</code> file, you need to install several dependencies manually:</p>
+<p>Before running the <code>requirements.txt</code> file, you may need to install several dependencies manually to avoid compilation errors, here are some that helped me:</p>
 
 <h4>1. PyTorch</h4>
 
