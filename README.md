@@ -143,64 +143,26 @@
 
 <h3 align="center">Prerequisites</h3>
 
-<p>Before running the <code>requirements.txt</code> file, you may need to install several dependencies manually to avoid compilation errors, here are some that helped me:</p>
+<p>invaR1ant-veRL builds on veRL's framework, so the simplest approach is to follow the official veRL installation instructions:</p>
 
-<h4>1. PyTorch</h4>
+<ol>
+  <li>Follow the <a href="https://verl.readthedocs.io/en/latest/start/install.html">veRL installation guide</a> to set up all core dependencies</li>
+  <li>Install our additional dependency, z3-solver:</li>
+</ol>
 
 ```bash
-pip install torch torchvision torchaudio
+pip install z3-solver
 ```
-<p><a href="https://pytorch.org/get-started/locally/">Torch installation guide</a></p>
-<p><em>Note: Tested with CUDA 12.4, but other versions may work as well.</em></p>
 
-<h4>2. Flash Attention</h4>
+<p>After installing veRL and z3-solver, clone this repository and install the remaining requirements:</p>
 
 ```bash
-pip install flash-attn --no-build-isolation
-```
-<p><a href="https://github.com/Dao-AILab/flash-attention">Flash-Attn installation guide</a></p>
-<p><em>Note: The <code>--no-build-isolation</code> flag is necessary as standard installation may fail.</em></p>
-
-<h4>3. XGrammar (From Source)</h4>
-
-```bash
-##########################DEPENDENCIES############################
-# install Python dependency
-pip install ninja pybind11 torch
-##################################################################
-
-# 1. clone from GitHub
-git clone --recursive https://github.com/mlc-ai/xgrammar.git && cd xgrammar
-# 2. build XGrammar core and Python bindings
-mkdir build && cd build
-cmake .. -G Ninja
-ninja
-# 3. install the Python package
-cd ../python
-pip install .
-```
-<p><a href="https://xgrammar.mlc.ai/docs/start/install">XGrammar installation guide</a></p>
-
-<h4>4. XFormers</h4>
-
-```bash
-pip install -U xformers
-```
-<p><a href="https://github.com/facebookresearch/xformers">XFormers installation guide</a></p>
-
-<h4>5. VLLM</h4>
-
-```bash
-pip install vllm==0.7.3
-```
-<p><a href="https://docs.vllm.ai/en/stable/getting_started/installation/gpu/index.html">VLLM installation guide</a></p>
-<p><em>Note: Installation issues may occur with <code>xformers-0.0.28.post3.tar.gz</code> in certain environments.</em></p>
-
-<h4>6. Remaining Dependencies</h4>
-
-```bash
+git clone https://github.com/dannkoh/invaR1ant-veRL.git
+cd invaR1ant-veRL
 pip install -r requirements.txt
 ```
+
+<p><em>Note: If you encounter any installation issues, please refer to the troubleshooting section in the <a href="https://verl.readthedocs.io">veRL documentation</a>.</em></p>
 
 <hr />
 
