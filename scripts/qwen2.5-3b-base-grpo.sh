@@ -10,7 +10,7 @@ python3 -u -m verl.trainer.main_ppo \
     data.val_files=$HOME/invaR1ant-veRL/data/v2/test.parquet \
     data.train_batch_size=128 \
     data.val_batch_size=256 \
-    data.max_prompt_length=2056 \
+    data.max_prompt_length=2048 \
     data.max_response_length=4096 \
     data.instruct=False \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-3B \
@@ -22,13 +22,13 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.kl_loss_coef=0.001 \
     actor_rollout_ref.actor.kl_loss_type=low_var_kl \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
-    actor_rollout_ref.actor.fsdp_config.param_offload=False \
-    actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=8 \
+    actor_rollout_ref.actor.fsdp_config.param_offload=True \
+    actor_rollout_ref.actor.fsdp_config.optimizer_offload=True \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=16 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.4 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.5 \
     actor_rollout_ref.rollout.n=5 \
-    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=8 \
+    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=16 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.kl_ctrl.kl_coef=0.001 \
     +trainer.val_before_train=False \
@@ -38,3 +38,4 @@ python3 -u -m verl.trainer.main_ppo \
     trainer.save_freq=100 \
     trainer.test_freq=100 \
     trainer.total_epochs=40 $@
+
