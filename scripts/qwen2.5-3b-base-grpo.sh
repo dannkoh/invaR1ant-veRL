@@ -1,11 +1,13 @@
 set -x
 
 export VLLM_ATTENTION_BACKEND=XFORMERS
+export HYDRA_FULL_ERROR=1
+export CUDA_LAUNCH_BLOCKING=1
 
 python3 -u -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
-    data.train_files=$HOME/invaR1ant-veRL/data/train.parquet \
-    data.val_files=$HOME/invaR1ant-veRL/data/test.parquet \
+    data.train_files=$HOME/invaR1ant-veRL/data/v2/train.parquet \
+    data.val_files=$HOME/invaR1ant-veRL/data/v2/test.parquet \
     data.train_batch_size=256 \
     data.val_batch_size=512 \
     data.max_prompt_length=4096 \
