@@ -39,4 +39,4 @@ python3 -u -m verl.trainer.main_ppo \
     trainer.save_freq=100 \
     trainer.test_freq=25 \
     trainer.nnodes=1 \
-    trainer.total_epochs=100 $@
+    trainer.total_epochs=15 $@
