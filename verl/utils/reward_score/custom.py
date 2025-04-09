@@ -2,7 +2,7 @@ import subprocess
 import re
 
 
-def compute_score(solution_str: str, ground_truth: str, extra_info: dict[str,str], is_instruct: bool = False) -> float:
+def compute_score(solution_str: str, ground_truth: str, extra_info: dict[str,str]) -> float:
     """
     Compute the score for a given solution and ground truth by checking
     the logical equivalence of their SMT constraints.
@@ -17,7 +17,7 @@ def compute_score(solution_str: str, ground_truth: str, extra_info: dict[str,str
 
     """
     # Check if solution string has a single </think>, <answer> and </answer> tag
-    generated_solution = extract_solution(solution_str, is_instruct)
+    generated_solution = extract_solution(solution_str)
     if generated_solution is None:
         return 0
 
@@ -128,7 +128,7 @@ def parse_raw_constraints(constraint):
     # Combine into a single conjunctive expression
     return f"(and {' '.join(assertions)})"
 
-def extract_solution(response: str, is_instruct: bool) -> str:
+def extract_solution(response: str) -> str:
     """
     Extract the solution string from the response.
 
