@@ -34,7 +34,7 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
-    +trainer.val_before_train=False \
+    trainer.val_before_train=False \
     trainer.project_name=invaR1ant \
     trainer.experiment_name="invaR1ant-1.0" \
     trainer.n_gpus_per_node=2 \
