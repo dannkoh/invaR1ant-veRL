@@ -28,7 +28,7 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.5 \
     actor_rollout_ref.rollout.n=3 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=16 \
-    actor_rollout_ref.ref.fsdp_config.param_offload=True \
+    actor_rollout_ref.ref.fsdp_config.param_offload=False \
     algorithm.kl_ctrl.kl_coef=0.001 \
     +trainer.val_before_train=False \
     trainer.project_name=invaR1ant \
