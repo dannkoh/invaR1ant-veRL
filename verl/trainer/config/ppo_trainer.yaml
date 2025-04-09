@@ -2,6 +2,7 @@ data:
   tokenizer: null
   train_files: ~/data/rlhf/gsm8k/train.parquet
   val_files: ~/data/rlhf/gsm8k/test.parquet
+  instruct: False
   prompt_key: prompt
   reward_fn_key: data_source
   max_prompt_length: 512
