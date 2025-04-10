@@ -31,10 +31,6 @@ def extract_solution(response: str) -> Tuple[Optional[str], float, Optional[str]
         chain_of_thought = perfect_match.group(1).strip()
         solution = perfect_match.group(2).strip()
         
-        # Validate solution doesn't contain tags
-        if "<answer>" in solution or "</answer>" in solution:
-            return None, 0.0, chain_of_thought
-        
         return solution, 1.0, chain_of_thought
     
     # Check for basic tag structure but with trailing content
@@ -44,10 +40,6 @@ def extract_solution(response: str) -> Tuple[Optional[str], float, Optional[str]
     if basic_match:
         chain_of_thought = basic_match.group(1).strip()
         solution = basic_match.group(2).strip()
-        
-        # Validate solution doesn't contain tags
-        if "<answer>" in solution or "</answer>" in solution:
-            return None, 0.0, chain_of_thought
         
         return solution, 0.5, chain_of_thought
     
