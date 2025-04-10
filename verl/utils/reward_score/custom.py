@@ -1,44 +1,62 @@
 import subprocess
 import re
+from typing import Dict, Optional, Tuple, Any
 
+# Constants for reward scores
+SCORE_CORRECT_PERFECT = 1.0
+SCORE_CORRECT_WITH_TRAILING = 0.95
+SCORE_INCORRECT_PERFECT = 0.1
+SCORE_INCORRECT_WITH_TRAILING = 0.05
+SCORE_MALFORMED = 0.0
 
-def compute_score(solution_str: str, ground_truth: str, extra_info: dict[str,str]) -> float:
+def extract_solution(response: str) -> Tuple[Optional[str], float, Optional[str]]:
     """
-    Compute the score for a given solution and ground truth by checking
-    the logical equivalence of their SMT constraints.
-
+    Extract solution content and evaluate formatting quality.
+    
     Args:
-        solution_str (str): The solution string.
-        ground_truth (dict): The ground truth data.
-        extra_info (dict): Extra information.
-
+        response: The full model response
+        
     Returns:
-        float: The score. 1 for correct, 0.1 for incorrect and 0 for poorly formatted.
-
+        Tuple of (extracted_solution, formatting_score, chain_of_thought)
+        where formatting_score is:
+        - 1.0: Perfect formatting (nothing after </answer>)
+        - 0.5: Has correct tags but text after </answer>
+        - 0.0: Missing required tags
     """
-    # Check if solution string has a single </think>, <answer> and </answer> tag
-    generated_solution = extract_solution(solution_str)
-    if generated_solution is None:
-        return 0
+    # Check for perfect formatting (nothing after </answer>)
+    perfect_pattern = r"\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>\s*$"
+    perfect_match = re.search(perfect_pattern, response, re.DOTALL)
+    
+    if perfect_match:
+        chain_of_thought = perfect_match.group(1).strip()
+        solution = perfect_match.group(2).strip()
+        
+        # Validate solution doesn't contain tags
+        if "<answer>" in solution or "</answer>" in solution:
+            return None, 0.0, chain_of_thought
+        
+        return solution, 1.0, chain_of_thought
+    
+    # Check for basic tag structure but with trailing content
+    basic_pattern = r"\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>"
+    basic_match = re.search(basic_pattern, response, re.DOTALL)
+    
+    if basic_match:
+        chain_of_thought = basic_match.group(1).strip()
+        solution = basic_match.group(2).strip()
+        
+        # Validate solution doesn't contain tags
+        if "<answer>" in solution or "</answer>" in solution:
+            return None, 0.0, chain_of_thought
+        
+        return solution, 0.5, chain_of_thought
+    
+    # Failed to match required pattern
+    return None, 0.0, None
 
-    answer_constants = extra_info.get("answer_constants", None)
-
-    result = check_logical_equivalence(
-        generated_assertions=generated_solution, original_assertions=ground_truth, constants=answer_constants
-    )
-
-    print(f"\n\nResult: {result}", flush=True)
-    print("#"*60, flush=True)
-
-
-    if (not result["result"] and result["reason"] == "Not Equivalent") or (not result["result"] and result["reason"] == "Incomplete Z3 output."):
-        return 0.1
-    elif not result["result"]:
-        return 0
-    return 1
-
-
-def check_logical_equivalence(original_assertions, generated_assertions, constants):
+def check_logical_equivalence(original_assertions: str, 
+                             generated_assertions: str, 
+                             constants: Optional[str]) -> Dict[str, Any]:
     """
     Check the logical equivalence between the original and generated constraints
     using Z3 by piping SMT-LIB content directly to its standard input.
@@ -118,8 +136,7 @@ def check_logical_equivalence(original_assertions, generated_assertions, constan
     except Exception as e:
         return {"result": False, "reason": f"Error running Z3: {e}"}
 
-
-def parse_raw_constraints(constraint):
+def parse_raw_constraints(constraint: str) -> str:
     """
     Parse raw SMT-LIB2 constraints into a single conjunctive form.
     """
@@ -128,43 +145,60 @@ def parse_raw_constraints(constraint):
     # Combine into a single conjunctive expression
     return f"(and {' '.join(assertions)})"
 
-def extract_solution(response: str) -> str:
+def compute_score(solution_str: str, ground_truth: str, 
+                 extra_info: Dict[str, str]) -> float:
     """
-    Extract the solution string from the response.
-
-    This function expects that the response contains:
-      - Optionally some manually formatted text before the <think> token.
-      - A <think> ... </think> block.
-      - An <answer> ... </answer> block.
-    The entire response must end immediately after </answer>.
-
+    Compute the score based on correctness and formatting.
+    
+    Reward structure:
+    - 1.0: Correct answer with perfect formatting
+    - 0.95: Correct answer with text after </answer>
+    - 0.1: Wrong answer with perfect formatting
+    - 0.05: Wrong answer with text after </answer>
+    - 0.0: Missing required tags
+    
     Args:
-      response (str): The full response text.
-      is_instruct (bool): If True, expects additional <im_start> tokens.
-
+        solution_str: The complete solution string
+        ground_truth: The expected answer
+        extra_info: Additional context information
+        
     Returns:
-      str: The solution string from the <answer> block, or None if formatting fails.
+        Float score between 0.0 and 1.0
     """
-
-    pattern = r"Let me solve this step by step.\s*<think>\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>"
-    # Use fullmatch to ensure the response ends exactly after the answer block.
-    match = re.search(pattern, response, re.DOTALL)
-
-    print(f"\n\n{'#'*30}DEBUG{'#'*30}\n\n{response}\n{'-'*60}", flush=True)
-
-    if match is None:
-        print("Match is none\n\n", flush=True)
-        print("-" * 60, flush=True)
-        return None
-
-    chain_of_thought = match.group(1).strip()
-    solution = match.group(2).strip()
-
-    print(f"\nChain-of-thought:\n{chain_of_thought}\nSolution:\n{solution}\n{'-'*60}", flush=True)
+    # For debugging
+    print(f"\n\n{'#'*30}DEBUG{'#'*30}\n\n{solution_str}\n{'-'*60}", flush=True)
     
+    # Extract solution and determine formatting quality
+    generated_solution, formatting_quality, chain_of_thought = extract_solution(solution_str)
     
-    if "<answer>" in solution or "</answer>" in solution:
-        print("Answer token in solution.", flush=True)
-        return None
-
-    return solution
+    # If extraction failed, return zero
+    if generated_solution is None:
+        return SCORE_MALFORMED
+        
+    # Get constants for verification
+    answer_constants = extra_info.get("answer_constants", None)
+    
+    # Check logical equivalence
+    result = check_logical_equivalence(
+        generated_assertions=generated_solution,
+        original_assertions=ground_truth,
+        constants=answer_constants
+    )
+    
+    # Print diagnostic information
+    if chain_of_thought:
+        print(f"\nChain-of-thought:\n{chain_of_thought}", flush=True)
+    print(f"\nSolution:\n{generated_solution}", flush=True)
+    print(f"\nResult: {result}", flush=True)
+    print(f"Formatting quality: {formatting_quality}", flush=True)
+    print("#"*60, flush=True)
+    
+    # Determine final score
+    if result["result"]:
+        # Correct answer
+        return SCORE_CORRECT_PERFECT if formatting_quality == 1.0 else SCORE_CORRECT_WITH_TRAILING
+    else:
+        # Incorrect answer
+        if formatting_quality == 0.0:
+            return SCORE_MALFORMED
+        return SCORE_INCORRECT_PERFECT if formatting_quality == 1.0 else SCORE_INCORRECT_WITH_TRAILING
