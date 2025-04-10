@@ -28,16 +28,14 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
     actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.5 \
-    actor_rollout_ref.rollout.n=16 \
+    actor_rollout_ref.rollout.n=32 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=32 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
-    trainer.val_before_train=False \
     trainer.project_name=invaR1ant \
     trainer.experiment_name="invaR1ant-1.0" \
     trainer.n_gpus_per_node=2 \
     trainer.save_freq=100 \
     trainer.test_freq=25 \
-    trainer.nnodes=1 \
     trainer.total_epochs=15 $@
