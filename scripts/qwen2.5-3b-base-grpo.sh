@@ -34,8 +34,10 @@ python3 -u -m verl.trainer.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.project_name=invaR1ant \
+    trainer.val_before_train=False \
     trainer.experiment_name="invaR1ant-1.0" \
     trainer.n_gpus_per_node=2 \
+    trainer.n_nodes=1 \
     trainer.save_freq=100 \
     trainer.test_freq=25 \
     trainer.total_epochs=15 $@
