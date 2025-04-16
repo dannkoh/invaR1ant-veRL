@@ -6,7 +6,7 @@ python3 -u -m verl.trainer.main_ppo \
     algorithm.use_kl_in_reward=False \
     data.train_files=$HOME/invaR1ant-veRL/data/v2/train.parquet \
     data.val_files=$HOME/invaR1ant-veRL/data/v2/test.parquet \
-    data.train_batch_size=256 \
+    data.train_batch_size=128 \
     data.max_prompt_length=2048 \
     data.max_response_length=2048 \
     data.instruct=False \
@@ -15,7 +15,7 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-3B \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
-    actor_rollout_ref.actor.ppo_mini_batch_size=32 \
+    actor_rollout_ref.actor.ppo_mini_batch_size=16 \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=8 \
     actor_rollout_ref.actor.use_kl_loss=True \
     actor_rollout_ref.actor.kl_loss_coef=0.001 \
@@ -38,6 +38,6 @@ python3 -u -m verl.trainer.main_ppo \
     trainer.experiment_name="invaR1ant-1.0" \
     trainer.n_gpus_per_node=2 \
     trainer.nnodes=1 \
-    trainer.save_freq=100 \
+    trainer.save_freq=50 \
     trainer.test_freq=25 \
     trainer.total_epochs=15 $@

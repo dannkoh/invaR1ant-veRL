@@ -304,6 +304,10 @@ class DataParallelPPOActor(BasePPOActor):
                         cliprange_low=clip_ratio_low,
                         cliprange_high=clip_ratio_high,
                         clip_ratio_c=clip_ratio_c)
+                    
+                    # compute entropy
+                    entropy_scalar = masked_mean(values=entropy,mask=response_mask)
+
                     # compute entropy loss from entropy
                     entropy_loss = agg_loss(loss_mat=entropy, loss_mask=response_mask, loss_agg_mode=loss_agg_mode)
 
@@ -332,7 +336,8 @@ class DataParallelPPOActor(BasePPOActor):
                     loss.backward()
 
                     data = {
-                        'actor/entropy': entropy_loss.detach().item(),
+                        'actor/entropy_loss': entropy_loss.detach().item(),
+                        'actor/entropy': entropy_scalar.detach().item(),
                         'actor/pg_loss': pg_loss.detach().item(),
                         'actor/pg_clipfrac': pg_clipfrac.detach().item(),
                         'actor/ppo_kl': ppo_kl.detach().item(),
