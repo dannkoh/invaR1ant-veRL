@@ -110,7 +110,7 @@ def check_logical_equivalence(original_assertions: str,
 
     # Pipe the SMT content directly to Z3 via standard input.
     try:
-        proc = subprocess.run(["z3", "-in"], input=smt_content, capture_output=True, text=True, check=False)
+        proc = subprocess.run(["z3", "-in"], input=smt_content, capture_output=True, text=True, check=False, timeout=10)
         output = proc.stdout.strip()
         # Gather any error messages.
         results = [line for line in output.splitlines() if line in ("sat", "unsat", "unknown")]
