@@ -86,6 +86,7 @@ def check_logical_equivalence(
     # Prepend declarations for the generated side, if provided
     if constants:
         gen_smt = constants.strip() + "\n" + gen_smt
+        orig_smt = constants.strip() + "\n" + orig_smt
 
     try:
         # Parse SMT-LIB into Python lists of BoolRef constraints
