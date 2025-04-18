@@ -8,7 +8,7 @@ python3 -u -m verl.trainer.main_ppo \
     algorithm.use_kl_in_reward=False \
     data.train_files=$HOME/invaR1ant-veRL/data/v2/train.parquet \
     data.val_files=$HOME/invaR1ant-veRL/data/v2/test.parquet \
-    data.train_batch_size=128 \
+    data.train_batch_size=64 \
     data.max_prompt_length=2048 \
     data.max_response_length=2048 \
     data.instruct=False \
