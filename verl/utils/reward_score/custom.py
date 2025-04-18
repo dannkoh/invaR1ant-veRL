@@ -134,7 +134,7 @@ def compute_score(
      3. Perform logical equivalence check of solution vs. ground_truth using Z3.
      4. Map equivalence + formatting result to a final score.
     """
-    print(f"\n\n{'#'*30}DEBUG{'#'*30}\n\n{solution_str}\n{'-'*60}", flush=True)
+    # print(f"\n\n{'#'*30}DEBUG{'#'*30}\n\n{solution_str}\n{'-'*60}")
     # Parse out solution and formatting
     generated_solution, formatting_quality, cot = extract_solution(solution_str)
     if generated_solution is None:
@@ -152,12 +152,12 @@ def compute_score(
     )
     equivalent = result.get("result", False)
 
-    if cot:
-        print(f"\nChain-of-thought:\n{cot}", flush=True)
-    print(f"\nSolution:\n{generated_solution}", flush=True)
-    print(f"\nResult: {result}", flush=True)
-    print(f"Formatting quality: {formatting_quality}", flush=True)
-    print("#"*60, flush=True)
+    # if cot:
+    #     print(f"\nChain-of-thought:\n{cot}", flush=True)
+    # print(f"\nSolution:\n{generated_solution}", flush=True)
+    # print(f"\nResult: {result}", flush=True)
+    # print(f"Formatting quality: {formatting_quality}", flush=True)
+    # print("#"*60, flush=True)
 
     # Final scoring logic
     if equivalent:

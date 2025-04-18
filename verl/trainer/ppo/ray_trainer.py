@@ -876,48 +876,35 @@ class RayPPOTrainer(object):
                     print("Rollouts are repeated")
                     batch = batch.repeat(repeat_times=self.config.actor_rollout_ref.rollout.n, interleave=True)
                     batch = batch.union(gen_batch_output)
-                    print("Rollouts are done")
-
-                    print("response mask is being computed")
 
                     batch.batch['response_mask'] = compute_response_mask(batch)
-                    print("Response mask is done")
+
                     # balance the number of valid tokens on each dp rank.
                     # Note that this breaks the order of data inside the batch.
                     # Please take care when you implement group based adv computation such as GRPO and rloo
                     if self.config.trainer.balance_batch:
-                        print("Balancing batch")
                         self._balance_batch(batch, metrics=metrics)
 
                     # compute global_valid tokens
-                    print("Computing global valid tokens")
                     batch.meta_info['global_token_num'] = torch.sum(batch.batch['attention_mask'], dim=-1).tolist()
 
                     # recompute old_log_probs
-                    print("Computing old log probs")
                     with _timer('old_log_prob', timing_raw):
                         old_log_prob = self.actor_rollout_wg.compute_log_prob(batch)
                         batch = batch.union(old_log_prob)
                     
-                    print("Computing old log probs done")
 
-                    print("Computing reference log probs")
                     if self.use_reference_policy:
                         # compute reference log_prob
                         with _timer('ref', timing_raw):
                             ref_log_prob = self.ref_policy_wg.compute_ref_log_prob(batch)
                             batch = batch.union(ref_log_prob)
-                    print("Computing reference log probs done")
 
                     # compute values
                     if self.use_critic:
                         with _timer('values', timing_raw):
                             values = self.critic_wg.compute_values(batch)
                             batch = batch.union(values)
-
-                    print("Computing values done")
-
-                    print("computing advantages")
                     with _timer('adv', timing_raw):
                         # compute scores. Support both model and function-based.
                         # We first compute the scores using reward model. Then, we call reward_fn to combine
@@ -929,7 +916,6 @@ class RayPPOTrainer(object):
 
                         # we combine with rule-based rm
                         reward_extra_infos_dict: dict[str, list]
-                        print("Computing reward function")
                         try:
                             reward_result = self.reward_fn(batch, return_dict=True)
                             reward_tensor = reward_result['reward_tensor']
@@ -938,7 +924,6 @@ class RayPPOTrainer(object):
                             print(f'Error in reward_fn: {e}')
                             reward_tensor = self.reward_fn(batch)
                             reward_extra_infos_dict = {}
-                        print("Computing reward function done")
 
                         batch.batch['token_level_scores'] = reward_tensor
 
@@ -961,14 +946,12 @@ class RayPPOTrainer(object):
                                                   gamma=self.config.algorithm.gamma,
                                                   lam=self.config.algorithm.lam,
                                                   num_repeat=self.config.actor_rollout_ref.rollout.n)
-                    print("update critic-maybe")
                     # update critic
                     if self.use_critic:
                         with _timer('update_critic', timing_raw):
                             critic_output = self.critic_wg.update_critic(batch)
                         critic_output_metrics = reduce_metrics(critic_output.meta_info['metrics'])
                         metrics.update(critic_output_metrics)
-                    print("update critic done")
                     # implement critic warmup
                     if self.config.trainer.critic_warmup <= self.global_steps:
                         # update actor
@@ -976,7 +959,6 @@ class RayPPOTrainer(object):
                             actor_output = self.actor_rollout_wg.update_actor(batch)
                         actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
                         metrics.update(actor_output_metrics)
-                    print("validate - maybe")
                     # validate
                     if self.val_reward_fn is not None and self.config.trainer.test_freq > 0 and \
                         (is_last_step or  self.global_steps % self.config.trainer.test_freq == 0):
@@ -990,14 +972,12 @@ class RayPPOTrainer(object):
                             self.global_steps % self.config.trainer.save_freq == 0):
                         with _timer('save_checkpoint', timing_raw):
                             self._save_checkpoint()
-                print("compute data metrics")
                 # collect metrics
                 metrics.update(compute_data_metrics(batch=batch, use_critic=self.use_critic))
                 metrics.update(compute_timing_metrics(batch=batch, timing_raw=timing_raw))
                 # TODO: implement actual tflpo and theoretical tflpo
                 n_gpus = self.resource_pool_manager.get_n_gpus()
                 metrics.update(compute_throughout_metrics(batch=batch, timing_raw=timing_raw, n_gpus=n_gpus))
-                print("compute data metrics done")
 
                 # TODO: make a canonical logger that supports various backend
                 logger.log(data=metrics, step=self.global_steps)
