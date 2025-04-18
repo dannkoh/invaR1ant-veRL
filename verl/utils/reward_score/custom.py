@@ -2,6 +2,17 @@ import subprocess
 import re
 from typing import Dict, Optional, Tuple, Any
 
+
+# Pre-compiled regex patterns for extract_solution
+_PERFECT_RE = re.compile(
+    r"\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>\s*$",
+    re.DOTALL,
+)
+_BASIC_RE = re.compile(
+    r"\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>",
+    re.DOTALL,
+)
+
 # Constants for reward scores
 SCORE_CORRECT_PERFECT = 1.0
 SCORE_CORRECT_WITH_TRAILING = 0.95
@@ -24,26 +35,19 @@ def extract_solution(response: str) -> Tuple[Optional[str], float, Optional[str]
         - 0.0: Missing required tags
     """
     # Check for perfect formatting (nothing after </answer>)
-    perfect_pattern = r"\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>\s*$"
-    perfect_match = re.search(perfect_pattern, response, re.DOTALL)
-    
+    # Use pre-compiled patterns for performance
+    perfect_match = _PERFECT_RE.search(response)
     if perfect_match:
         chain_of_thought = perfect_match.group(1).strip()
         solution = perfect_match.group(2).strip()
-        
         return solution, 1.0, chain_of_thought
-    
-    # Check for basic tag structure but with trailing content
-    basic_pattern = r"\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>"
-    basic_match = re.search(basic_pattern, response, re.DOTALL)
-    
+
+    basic_match = _BASIC_RE.search(response)
     if basic_match:
         chain_of_thought = basic_match.group(1).strip()
         solution = basic_match.group(2).strip()
-        
         return solution, 0.5, chain_of_thought
-    
-    # Failed to match required pattern
+
     return None, 0.0, None
 
 def check_logical_equivalence(original_assertions: str, 
@@ -110,7 +114,7 @@ def check_logical_equivalence(original_assertions: str,
 
     # Pipe the SMT content directly to Z3 via standard input.
     try:
-        proc = subprocess.run(["z3", "-in"], input=smt_content, capture_output=True, text=True, check=False, timeout=5)
+        proc = subprocess.run(["z3", "-in"], input=smt_content, capture_output=True, text=True, check=False, timeout=10)
         output = proc.stdout.strip()
         # Gather any error messages.
         results = [line for line in output.splitlines() if line in ("sat", "unsat", "unknown")]
