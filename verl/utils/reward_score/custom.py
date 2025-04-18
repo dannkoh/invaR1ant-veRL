@@ -105,12 +105,12 @@ def check_logical_equivalence(original_assertions: str,
 """
     # Check the size of the SMT content.
     smt_size = len(smt_content.encode("utf-8"))
-    if smt_size > 2_000_000:
+    if smt_size > 1_000_000:
         return {"result": False, "reason": "Constraints generated are too large."}
 
     # Pipe the SMT content directly to Z3 via standard input.
     try:
-        proc = subprocess.run(["z3", "-in"], input=smt_content, capture_output=True, text=True, check=False, timeout=10)
+        proc = subprocess.run(["z3", "-in"], input=smt_content, capture_output=True, text=True, check=False, timeout=5)
         output = proc.stdout.strip()
         # Gather any error messages.
         results = [line for line in output.splitlines() if line in ("sat", "unsat", "unknown")]
