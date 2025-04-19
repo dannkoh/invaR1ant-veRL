@@ -1,18 +1,9 @@
 import re
 from typing import Dict, Optional, Tuple, Any
+from functools import lru_cache
 
 # Z3 Python API imports for in-process SMT solving
 from z3 import Solver, parse_smt2_string, Not, And, Z3Exception, sat
-
-# Pre-compiled regex patterns for extract_solution to avoid repeated compilation
-_PERFECT_RE = re.compile(
-    r"\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>\s*$",
-    re.DOTALL,
-)
-_BASIC_RE = re.compile(
-    r"\s*(.*?)\s*</think>\s*<answer>\s*(.*?)\s*</answer>",
-    re.DOTALL,
-)
 
 # Constants for reward score tiers
 SCORE_CORRECT_PERFECT = 1.0
@@ -20,6 +11,14 @@ SCORE_CORRECT_WITH_TRAILING = 0.95
 SCORE_INCORRECT_PERFECT = 0.1
 SCORE_INCORRECT_WITH_TRAILING = 0.05
 SCORE_MALFORMED = 0.0
+
+# Cache parsed SMT constraints to avoid repeated parsing
+@lru_cache(maxsize=128)
+def _parse_smt(smt_text: str):
+    """
+    Parse SMT-LIB text into Z3 BoolRef list, cached for reuse.
+    """
+    return parse_smt2_string(smt_text)
 
 
 def extract_solution(response: str) -> Tuple[Optional[str], float, Optional[str]]:
@@ -35,22 +34,32 @@ def extract_solution(response: str) -> Tuple[Optional[str], float, Optional[str]
                              0.5 for correct tags with trailing text,
                              0.0 if tags are missing.
     """
-    # Try perfect formatting match (no trailing text)
-    perfect_match = _PERFECT_RE.search(response)
-    if perfect_match:
-        chain_of_thought = perfect_match.group(1).strip()
-        solution = perfect_match.group(2).strip()
-        return solution, 1.0, chain_of_thought
+    # locate the end of the chain-of-thought section
+    think_end = response.rfind("</think>")
+    if think_end == -1:
+        return None, 0.0, None
 
-    # Try basic match (allows trailing text after answer)
-    basic_match = _BASIC_RE.search(response)
-    if basic_match:
-        chain_of_thought = basic_match.group(1).strip()
-        solution = basic_match.group(2).strip()
-        return solution, 0.5, chain_of_thought
+    # locate the start of the answer section
+    answer_start_tag = "<answer>"
+    answer_start = response.find(answer_start_tag, think_end)
+    if answer_start == -1:
+        return None, 0.0, None
+    answer_start += len(answer_start_tag)
 
-    # No valid <think>/<answer> structure found
-    return None, 0.0, None
+    # locate the end of the answer section
+    answer_end_tag = "</answer>"
+    answer_end = response.find(answer_end_tag, answer_start)
+    if answer_end == -1:
+        return None, 0.0, None
+
+    # extract the components
+    chain_of_thought = response[:think_end].strip()
+    solution = response[answer_start:answer_end].strip()
+    trailing = response[answer_end + len(answer_end_tag):].strip()
+
+    # determine formatting score
+    formatting_score = 1.0 if not trailing else 0.5
+    return solution, formatting_score, chain_of_thought
 
 
 def check_logical_equivalence(
@@ -62,59 +71,62 @@ def check_logical_equivalence(
     Check logical equivalence of two sets of SMT constraints using Z3's incremental API.
 
     Performs two checks on a single Solver instance with push/pop:
-      1. A ⇒ B  (unsat if A ∧ ¬B holds no model)
-      2. B ⇒ A  (unsat if B ∧ ¬A holds no model)
+      1. A ⇒ B  (unsat if A ∧ ¬B is satisfiable)
+      2. B ⇒ A  (unsat if B ∧ ¬A is satisfiable)
 
     Args:
-        original_assertions: full SMT-LIB text including declarations and asserts for A.
-        generated_assertions: only assert lines from the LLM output (B).
-        constants: optional declaration lines to prepend to generated side.
+        original_assertions: full SMT-LIB text including asserts for A.
+        generated_assertions: SMT-LIB asserts for B.
+        constants: optional SMT-LIB declarations to prepend.
 
     Returns:
         A dict with 'result': bool and 'reason': str describing equivalence.
     """
     # Normalize and strip inputs
     orig_smt = original_assertions.strip() if original_assertions else ""
-    gen_smt = generated_assertions.strip() if generated_assertions else ""
+    gen_body = generated_assertions.strip() if generated_assertions else ""
 
     # Trivial equivalence cases
-    if not orig_smt and not gen_smt:
+    if not orig_smt and not gen_body:
         return {"result": True, "reason": "Both constraints empty."}
-    if not orig_smt or not gen_smt:
+    if not orig_smt or not gen_body:
         return {"result": False, "reason": "One side is empty but not the other."}
 
-    # Prepend declarations for the generated side, if provided
+    # Prepend declarations if provided
     if constants:
-        gen_smt = constants.strip() + "\n" + gen_smt
-        orig_smt = constants.strip() + "\n" + orig_smt
+        decls = constants.strip()
+        gen_smt = decls + "\n" + gen_body
+        orig_smt = decls + "\n" + orig_smt
+    else:
+        gen_smt = gen_body
 
     try:
-        # Parse SMT-LIB into Python lists of BoolRef constraints
-        orig_constraints = parse_smt2_string(orig_smt)
-        gen_constraints = parse_smt2_string(gen_smt)
+        # Parse SMT-LIB into lists of constraints, cached
+        orig_constraints = _parse_smt(orig_smt)
+        gen_constraints = _parse_smt(gen_smt)
     except Z3Exception as e:
         return {"result": False, "reason": f"Z3 parse error: {e}"}
 
     # Use a single Solver for both checks to reuse learned clauses
-    s = Solver()
+    solver = Solver()
 
-    # Check A ⇒ B: unsat if A ∧ ¬B is contradictory
-    s.push()
-    s.add(*orig_constraints)
-    s.add(Not(And(*gen_constraints)))
-    if s.check() == sat:
-        s.pop()
+    # Check A ⇒ B: A ∧ ¬B should be unsatisfiable
+    solver.push()
+    solver.add(*orig_constraints)
+    solver.add(Not(And(*gen_constraints)))
+    if solver.check() == sat:
+        solver.pop()
         return {"result": False, "reason": "Original does not imply generated."}
-    s.pop()
+    solver.pop()
 
-    # Check B ⇒ A: unsat if B ∧ ¬A is contradictory
-    s.push()
-    s.add(*gen_constraints)
-    s.add(Not(And(*orig_constraints)))
-    if s.check() == sat:
-        s.pop()
+    # Check B ⇒ A: B ∧ ¬A should be unsatisfiable
+    solver.push()
+    solver.add(*gen_constraints)
+    solver.add(Not(And(*orig_constraints)))
+    if solver.check() == sat:
+        solver.pop()
         return {"result": False, "reason": "Generated does not imply original."}
-    s.pop()
+    solver.pop()
 
     # Both implications hold => equivalent
     return {"result": True, "reason": "Constraints are equivalent."}
@@ -134,17 +146,16 @@ def compute_score(
      3. Perform logical equivalence check of solution vs. ground_truth using Z3.
      4. Map equivalence + formatting result to a final score.
     """
-    # print(f"\n\n{'#'*30}DEBUG{'#'*30}\n\n{solution_str}\n{'-'*60}")
-    # Parse out solution and formatting
-    generated_solution, formatting_quality, cot = extract_solution(solution_str)
+    # Extract solution and formatting quality
+    generated_solution, formatting_quality, chain_of_thought = extract_solution(solution_str)
     if generated_solution is None:
         # Malformed output (missing tags)
         return SCORE_MALFORMED
 
-    # Get declarations if available
+    # Retrieve declarations if available
     constants = extra_info.get("answer_constants") if extra_info else None
 
-    # Check logic equivalence
+    # Perform logical equivalence check
     result = check_logical_equivalence(
         original_assertions=ground_truth,
         generated_assertions=generated_solution,
@@ -152,19 +163,10 @@ def compute_score(
     )
     equivalent = result.get("result", False)
 
-    # if cot:
-    #     print(f"\nChain-of-thought:\n{cot}", flush=True)
-    # print(f"\nSolution:\n{generated_solution}", flush=True)
-    # print(f"\nResult: {result}", flush=True)
-    # print(f"Formatting quality: {formatting_quality}", flush=True)
-    # print("#"*60, flush=True)
-
-    # Final scoring logic
+    # Map to final score
     if equivalent:
-        # Correct answer
         return SCORE_CORRECT_PERFECT if formatting_quality == 1.0 else SCORE_CORRECT_WITH_TRAILING
     else:
-        # Incorrect answer but well-formed tags
         return (
             SCORE_INCORRECT_PERFECT
             if formatting_quality == 1.0
