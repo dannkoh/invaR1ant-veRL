@@ -1,0 +1,31 @@
+inputSize,wcDepth,wcInstrExec,analysisTime,mem,paths,resolvedChoicesNum,resolvedPerfectChoicesNum,resolvedHistoryChoicesNum,resolvedInvariantChoicesNum,unresolvedChoicesNum,newChoicesNum,wcConstraint
+1,0,38,0,123,1,0,0,0,0,0,0,CONSTRAINT N/A
+2,0,58,0,155,1,0,0,0,0,0,0,CONSTRAINT N/A
+3,0,78,0,155,1,0,0,0,0,0,0,CONSTRAINT N/A
+4,1,105,0,155,1,1,0,1,0,0,0,in3 == CONST_0
+5,1,125,0,155,1,1,0,1,0,0,0,in3 == CONST_0
+6,1,145,0,155,1,1,0,1,0,0,0,in3 == CONST_0
+7,2,172,0,223,1,2,0,2,0,0,0,in6 == CONST_0 && in3 == CONST_0
+8,2,192,0,223,1,2,0,2,0,0,0,in6 == CONST_0 && in3 == CONST_0
+9,2,212,0,223,1,2,0,2,0,0,0,in6 == CONST_0 && in3 == CONST_0
+10,3,239,0,223,1,3,0,3,0,0,0,in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+11,3,259,0,223,1,3,0,3,0,0,0,in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+12,3,279,0,224,1,3,0,3,0,0,0,in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+13,4,306,0,224,1,4,0,4,0,0,0,in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+14,4,326,0,224,1,4,0,4,0,0,0,in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+15,4,346,0,224,1,4,0,4,0,0,0,in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+16,5,373,0,224,1,5,0,5,0,0,0,in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+17,5,393,0,352,1,5,0,5,0,0,0,in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+18,5,413,0,352,1,5,0,5,0,0,0,in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+19,6,440,0,352,1,6,0,6,0,0,0,in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+20,6,460,0,352,1,6,0,6,0,0,0,in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+21,6,480,0,352,1,6,0,6,0,0,0,in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+22,7,507,0,352,1,7,0,7,0,0,0,in21 == CONST_0 && in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+23,7,527,0,352,1,7,0,7,0,0,0,in21 == CONST_0 && in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+24,7,547,0,352,1,7,0,7,0,0,0,in21 == CONST_0 && in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+25,8,574,0,352,1,8,0,8,0,0,0,in24 == CONST_0 && in21 == CONST_0 && in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+26,8,594,0,352,1,8,0,8,0,0,0,in24 == CONST_0 && in21 == CONST_0 && in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+27,8,614,0,352,1,8,0,8,0,0,0,in24 == CONST_0 && in21 == CONST_0 && in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+28,9,641,0,352,1,9,0,9,0,0,0,in27 == CONST_0 && in24 == CONST_0 && in21 == CONST_0 && in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+29,9,661,0,352,1,9,0,9,0,0,0,in27 == CONST_0 && in24 == CONST_0 && in21 == CONST_0 && in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0
+30,9,681,0,352,1,9,0,9,0,0,0,in27 == CONST_0 && in24 == CONST_0 && in21 == CONST_0 && in18 == CONST_0 && in15 == CONST_0 && in12 == CONST_0 && in9 == CONST_0 && in6 == CONST_0 && in3 == CONST_0

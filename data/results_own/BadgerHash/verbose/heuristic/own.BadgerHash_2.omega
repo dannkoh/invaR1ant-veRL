@@ -1,0 +1,1 @@
+{[sss1_1,sss1_0,sss0_0,sss0_1,sss0,sss1] : sss1_0!=sss0&&sss0_0!=sss0&&%sssssssssssss%0==((sss1+sss0)%2)&&%sssssssssssss%0==((sss1_1+sss1_0)%2)&&%sssssssssssss%0==((sss0_1+sss0_0)%2)};
